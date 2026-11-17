@@ -125,6 +125,11 @@
       title: "sbomify @ Dependency Track Community Meeting (2025-11-05)"
       date: "2025-11-05"
       youtube: https://www.youtube.com/watch?v=-mushNOtEPM
+    - type: press
+      publication: invidis
+      title: "Certifications: The Dark Secret Behind So-Called Digital Signage Security"
+      date: "2025-08-23"
+      link: https://invidis.com/news/2025/08/certifications-the-dark-secret-behind-supposed-digital-signage-security/
     - type: guest post
       publication: "Sixteen:Nine"
       title: "Op-Ed: The Dirty Secret About Compliance And Digital Signage Security"
@@ -332,6 +337,14 @@
       location: London, UK
       deck: https://speakerdeck.com/vpetersson/provisioner-at-ansible-london
 
+- year: 2017
+  events:
+    - type: guest post
+      publication: "Sixteen:Nine"
+      title: "What IoT Can Bring To Digital Signage In Retail"
+      date: "2017-10-03"
+      link: https://invidis.com/sixteen-nine/2017/10/03/what-iot-can-bring-to-digital-signage-in-retail/
+
 - year: 2016
   events:
     - type: podcast
@@ -407,7 +420,7 @@
       publication: "Sixteen:Nine"
       title: "Screenly Q&A: Optimization Crucial For Raspberry Pi Digital Signage"
       date: "2014-03-24"
-      link: https://www.sixteen-nine.net/2014/03/24/screenly-qa-optimization-crucial-raspberry-pi-digital-signage/
+      link: https://invidis.com/sixteen-nine/2014/03/24/screenly-qa-optimization-crucial-raspberry-pi-digital-signage/
 
 - year: 2013
   events:
