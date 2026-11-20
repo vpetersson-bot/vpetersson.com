@@ -1,8 +1,8 @@
 ---
 slug: state-of-the-commercial-raspberry-pi-ecosystem
-title: "The State of the Commercial Raspberry Pi Ecosystem: We Scanned Every Paid-For OS in Raspberry Pi Imager"
+title: "The State of Commercial Raspberry Pi Security: I Scanned Every Paid-For OS in Raspberry Pi Imager"
 date: '2026-11-26T09:00:00Z'
-description: "I downloaded every image in the 'Freemium and paid-for OS' section of Raspberry Pi Imager, generated SBOMs and ran them through OSV. End-of-life Debian, Python 2.7, stale Chromium builds and thousands of fixable CVEs, on devices that sit inside business networks. Here is what I found, and what the CRA will expect."
+description: "I downloaded every image in the 'Freemium and paid-for OS' section of Raspberry Pi Imager, generated an SBOM for each, and ran them through OSV. End-of-life Debian, Python 2.7, stale Chromium, a default password, shared SSH host keys, and thousands of already-fixed CVEs -- on devices that live inside business networks."
 tags:
 - security
 - raspberry-pi
@@ -12,34 +12,32 @@ tags:
 - digital-signage
 ---
 
-**TL;DR:** I scanned the 11 commercial operating systems listed under "Freemium and paid-for OS" in Raspberry Pi Imager. Two still ship an end-of-life Debian 10 base, one runs its management stack on Python 2.7, and one is a 20-month-old Arch Linux snapshot. The Debian 12 based images carry between 2,600 and 5,300 vulnerabilities that already have a fix upstream, before the kernel is even counted. Scanners also under-report end-of-life systems: OSV matched 14 Debian advisories against a Raspbian 10 image, but 452 when the same packages were checked against Debian 11 data. One image still ships the default `pi` / `raspberry` password, and three bake a shared private SSH host key into every device. The package-manager updates most of them rely on only patch within a Debian release; there is no realistic OTA across a release boundary, so once the base OS reaches end of life the device is frozen and the only way forward is a physical reflash. Most of these are digital signage players sitting on corporate networks, and from December 2027 they fall squarely under the Cyber Resilience Act.
+A while back, in [The Last 20%](/2026/08/21/the-last-20-percent/), I mentioned in passing that the digital signage industry's security posture is "pretty terrible." That was an aside, thrown in next to a point about bad products and high subscription fees. This post is me actually checking whether I was right.
 
-Hobbyist Raspberry Pi builds get a pass. Nobody expects a weekend retro-gaming setup or a child's weather station to come with a vulnerability management program, and treating them like commercial goods would be unfair.
+Here is the setup. The Raspberry Pi Imager, the official tool for flashing SD cards, has a section called **Freemium and paid-for OS**. These are images from companies selling a product or a service on top of the Pi: digital signage players, a thin client, a smart-home hub, a 3D printer controller, a commercial Android build. These are not weekend projects. They end up in lobbies, meeting rooms, shop windows, factory floors and hospital corridors, almost always on the corporate network, usually on a VLAN nobody has looked at since install day, and almost never in anyone's asset inventory.
 
-Commercial offerings present a different situation. The Raspberry Pi Imager includes a section named **Freemium and paid-for OS**, which lists images from firms selling products or services for the Pi. Most are digital signage players, alongside a thin client, a smart-home hub, a 3D printer controller and a commercial Android distribution. These are not hobbyist endeavors. They are deployed in lobbies, conference rooms, retail displays, factory environments, and hospital hallways, typically connected to corporate networks, frequently on a VLAN unreviewed since setup, and rarely tracked in IT asset lists.
+So I did the obvious thing. I downloaded each vendor's image, generated an SBOM, and checked it for known vulnerabilities. The results are worse than my offhand "pretty terrible" suggested.
 
-Therefore, I treated them as I would any other product: I obtained the image from the vendor, created an SBOM, and checked it for known vulnerabilities.
+A note before the numbers: hobbyist builds get a pass here, and that is deliberate. Nobody expects a retro-gaming setup or a kid's weather station to ship with a vulnerability management program, and holding a maker flashing an image for a weekend to the same bar as a company selling a product would be unfair. The person tinkering has made no promises to anyone. A vendor charging for a signage player has, whether they admit it or not, and starting in December 2027 the EU will make that obligation explicit. So I scanned only the things sold as products. That is why I limited this to the paid-for category and left every other section of Imager alone.
 
-## Methodology
+## How I did it
 
-I intentionally limited this review to the **Freemium and paid-for OS** category only, excluding all other sections of Raspberry Pi Imager. That decision is the whole point. Holding hobbyists and makers (the general-purpose Raspberry Pi OS images, the retro-gaming distributions, the tinkerer projects) to the same security standard as a company selling a product would be unfair. A creator flashing an image for a weekend project makes no commitments to anyone. A vendor charging for a signage player, thin client, or smart-home hub has made such commitments, either implicitly or via contract, and will soon be required to do so by law. Consequently, I evaluated only those items sold as products.
+1. I pulled the Raspberry Pi Imager OS list (`os_list_imagingutility_v4.json`) on 20 November 2026 and took every entry under **Freemium and paid-for OS**.
+2. For each vendor I grabbed the newest image that supports a Pi 4 or Pi 5. One scan per vendor, the most current build.
+3. I decompressed each image, attached it as a read-only loop device, and mounted every partition. Where the root filesystem was buried inside Ubuntu Core snaps, balenaOS container layers, an LVM volume or a squashfs payload, I mounted that too.
+4. I recorded the OS release, kernel, package sources and update mechanism, then generated an SBOM with [Syft](https://github.com/anchore/syft) 1.57.2 and scanned it with [OSV-Scanner](https://github.com/google/osv-scanner) 2.7.1.
 
-1. I retrieved the Raspberry Pi Imager OS list (`os_list_imagingutility_v4.json`) on 20 November 2026 and selected every entry listed under **Freemium and paid-for OS**.
-2. For each vendor, I chose the most recent image compatible with a Raspberry Pi 4 or Pi 5. If a vendor offered multiple images, I scanned only the latest one.
-3. I uncompressed the image, attached it as a read-only loop device, and mounted every partition. When the root filesystem was nested inside Ubuntu Core snaps, balenaOS container layers, an LVM volume, or a squashfs payload, I mounted that as well.
-4. I noted the OS release, kernel version, package sources, and update mechanism, then generated an SBOM using [Syft](https://github.com/anchore/syft) 1.57.2 and scanned it with [OSV-Scanner](https://github.com/google/osv-scanner) 2.7.1.
+A few things to keep in mind when reading the table:
 
-Several details are important for interpreting the figures:
-
-- **Counts reflect distinct advisories** following OSV's alias consolidation. A CVE that also carries a DSA, GHSA, or PYSEC ID is counted only once.
-- **"Fix available"** indicates OSV lists a patched version for that package within that ecosystem. In short, the issue has been resolved upstream, yet the vendor has not yet released the update.
-- **The kernel receives separate treatment.** Because the Linux kernel operates as its own CNA, it issues thousands of CVEs annually, and comparing Raspberry Pi kernels to Debian's `linux` advisories creates significant noise. I include this data but exclude it from the headline figures.
-- **Raspbian lacks a dedicated OSV ecosystem.** I aligned Raspbian packages with their corresponding Debian release and employed source package names, which serve as the key for Debian's advisories.
-- **This represents the default setup.** Certain products self-update after the initial boot, meaning a deployed device might differ from its original image. Nevertheless, the shipped image reflects the vendor's choice and serves as the starting point for every new device.
+- **Counts are unique advisories** after OSV groups aliases. A CVE that also has a DSA, GHSA or PYSEC ID is counted once.
+- **"Fix available"** means OSV knows a patched version exists in that ecosystem. In other words, the problem is already solved upstream and the vendor simply hasn't shipped it.
+- **The kernel is counted separately.** Since the Linux kernel became its own CNA it issues thousands of CVEs a year, and matching Pi kernels against Debian's `linux` advisories is mostly noise. I report it but keep it out of the headline numbers.
+- **Raspbian has no OSV ecosystem of its own**, so I mapped Raspbian packages to the matching Debian release and used source package names, which is how Debian keys its advisories.
+- **This is the out-of-the-box state.** Some products update themselves after first boot, so a device in the field may be better (or worse) than its image. But the image is what the vendor chose to ship, and it is where every new device starts.
 
 ## The results
 
-| Product (image tested)                         | Base OS                                      | Base OS support status                                                       | Non-kernel vulns | Critical / High | Fix available | Update path we found                            |
+| Product (image tested)                         | Base OS                                      | Base OS support status                                                       | Non-kernel vulns | Critical / High | Fix available | Update path I found                             |
 | ---------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------- | ---------------: | --------------: | ------------: | ----------------------------------------------- |
 | **Linutop OS** (Jan 2025)                      | Raspbian 10                                  | **End of life** (Debian LTS ended June 2024)                                 |      318 (756\*) |        28 / 151 |           316 | Plain apt against the archived Debian 10 repo   |
 | **XOGO** 2.105.21 (Oct 2022)                   | balenaOS host, player container on Debian 10 | **End of life** (Debian 10; Alpine 3.15/3.16 supervisor containers also EoL) |      413 (547\*) |          3 / 37 |           413 | balena fleet updates, if the fleet is managed   |
@@ -54,45 +52,45 @@ Several details are important for interpreting the figures:
 | **Fugo One**                                   | n/a                                          | n/a                                                                          |              n/a |             n/a |           n/a | Image URL in Imager returns 404                 |
 | **vetra player**                               | n/a                                          | n/a                                                                          |              n/a |             n/a |           n/a | Listed in Imager with no images                 |
 
-\* The same packages, checked against Debian 11 advisory data; see "Scanners go quiet when you need them most" for further details.
-† Scanning was limited to the application layer because OSV lacks support for the Arch Linux (ALPM) ecosystem, meaning none of the 386 operating system packages were examined.
-‡ I accessed Android build settings, but I did not generate a complete Software Bill of Materials for Android.
+\* The same packages, checked against Debian 11 advisory data; see "Scanners go quiet exactly when you need them" below.
+† Only the application layer could be scanned. OSV has no Arch Linux (ALPM) ecosystem, so none of the 386 OS packages were checked.
+‡ I read the Android build properties. I did not build a full Android SBOM.
 
-Disclosure: ScreenlyOS is developed by Screenly, the firm I co-founded. It is on the list, so it went through exactly the same pipeline, and it does not come out clean either.
+Full disclosure before we go further: ScreenlyOS is made by Screenly, the company I co-founded. It is on the list, so it went through the exact same pipeline as everyone else. It does not come out clean either, and I left it in the table precisely so you can hold me to the same standard.
 
 ## What stands out
 
 ### End-of-life bases are still shipping
 
-Two of the nine images I was able to analyze completely rely on Debian 10. Regular security maintenance for Debian 10 ceased in September 2022, with long-term support ending in June 2024. The image from Linutop, dated January 2025, is Raspbian 10.13 featuring a 5.10.103 kernel from early 2022; its package database was last updated in November 2024. XOGO's player operates within a Debian 10 container on a balenaOS host running a 5.10.95 kernel. The supervisor containers are constructed using Alpine 3.15 and 3.16, which also reached end-of-life status in 2023 and 2024 respectively.
+Two of the nine images I could fully analyse are built on Debian 10. Regular security support for Debian 10 ended in September 2022 and LTS in June 2024. Linutop's image, dated January 2025, is Raspbian 10.13 on a 5.10.103 kernel from early 2022, and its package database was last touched in November 2024. XOGO's player runs in a Debian 10 container on a balenaOS host with a 5.10.95 kernel, and its supervisor containers are built on Alpine 3.15 and 3.16, both also past end of life.
 
-info-beamer presents a different scenario. Its foundational system is a compact custom build utilizing signed A/B updates, which constitutes a sound architecture. However, the device management layer relies on Python 2.7.18 alongside Flask 0.12, Werkzeug 0.11, Jinja2 2.8, and Pillow 4.0. Python 2 reached end of life in January 2020, and these libraries originate from 2016-2017. The Pillow library alone is responsible for 70 of the 117 advisories.
+info-beamer is a more interesting case. Its base is a small custom build with signed A/B updates, which is genuinely the right architecture. But the device management stack runs on Python 2.7.18 with Flask 0.12, Werkzeug 0.11, Jinja2 2.8 and Pillow 4.0. Python 2 died in January 2020, and those libraries are from 2016-2017. Pillow alone accounts for 70 of the 117 advisories.
 
-3DPrinterOS runs on Arch Linux ARM, a rolling release distribution. This approach functions adequately provided you maintain the rolling cycle. A snapshot from March 2024 represents a Linux system that is 20 months old with no versioned distribution to support backporting fixes.
+3DPrinterOS uses Arch Linux ARM, a rolling release. That is fine as long as you keep rolling. A March 2024 snapshot is just a 20-month-old Linux system with no versioned distribution behind it to backport fixes.
 
 ### "Supported" doesn't mean patched
 
-The Debian 12 images appear superior on paper because Debian 12 remains under long-term support. In reality, they harbor the highest number of vulnerabilities since they distribute a large volume of software and the image is merely a snapshot:
+The Debian 12 images look better on paper, because bookworm is still in LTS. In practice they carry the most vulnerabilities, because they ship a lot of software and the image is a frozen snapshot:
 
-- **Yodeck's** Pi 5 image carries a date from August 2026 yet relies on Debian 12.5, which came out in February 2024. Chromium is at version 125, from June 2024. Out of its 3,266 non-kernel advisories, fixes are already available for 2,643 within Debian.
-- **1Play** provides two full kernel trees (6.12.25 and 6.12.34) for each Pi model, includes Chromium 138, and offers 2,617 advisories that can be patched.
-- **TLXOS** has the most current Debian 12 image of the group (12.13), but it also includes a complete thin-client suite: Citrix, VMware Horizon, FreeRDP, NX, SPICE, CUPS, strongSwan, and others. The Chromium component alone accounts for 4,206 advisories. Since Debian manages Chromium security differently than most other packages, treat that single figure with caution. The other 2,000+ need no such caveat.
+- **Yodeck's** Pi 5 image is dated August 2026 but built from Debian 12.5, which shipped in February 2024. Chromium is at 125, from June 2024. 2,643 of its 3,266 non-kernel advisories already have a fix in Debian.
+- **1Play** ships two complete kernel trees (6.12.25 and 6.12.34) for every Pi generation, Chromium 138, and 2,617 fixable advisories.
+- **TLXOS** is the most current Debian 12 image of the lot (12.13), but it bundles an entire thin-client stack: Citrix, VMware Horizon, FreeRDP, NX, SPICE, CUPS, strongSwan and more. Its Chromium build alone matches 4,206 advisories. Debian handles Chromium security differently from most packages, so take that one figure with a pinch of salt. The other 2,000-plus don't need one.
 
-A small group of packages dominates every Debian-based image: `webkit2gtk`, `imagemagick`, `ffmpeg`, `chromium`, `vim`, `binutils`, `pillow`. These represent the media and browser layers a signage device requires, and they are the components that constantly process untrusted input.
+The same handful of packages dominates every Debian-based image: `webkit2gtk`, `imagemagick`, `ffmpeg`, `chromium`, `vim`, `binutils`, `pillow`. These are the media and browser components a signage player needs, and they are exactly the ones parsing untrusted content all day long.
 
-### Scanners go quiet when you need them most
+### Scanners go quiet exactly when you need them
 
-Anyone depending on a scanner dashboard should be concerned by this result. When I checked Linutop's Raspbian 10 packages against OSV's **Debian 10** records, I found **14** Debian advisories. Comparing the same packages against **Debian 11** data showed matches for **452**. XOGO rose from 143 to 280.
+This one should bother anyone who trusts a scanner dashboard. When I scanned Linutop's Raspbian 10 packages against OSV's **Debian 10** data, I got **14** advisories. Against **Debian 11** data, the same packages matched **452**. XOGO went from 143 to 280.
 
-The explanation is straightforward. Once a release is archived, the upstream security tracker ceases logging new issues for it, causing vulnerability databases to stop matching it. The longer a system remains unmaintained, the fewer issues appear in its scan results. A simple "0 critical" report on an end-of-life device represents a missed detection rather than actual safety. Verifying the support status of the underlying operating system must be part of the procedure, not just running a scanner.
+The reason is mundane. Once a release is archived, the upstream security tracker stops recording new issues against it, so the vulnerability databases stop matching it. The older and less maintained a system gets, the cleaner its scan looks. A "0 critical" result on an end-of-life device is a false negative, not a clean bill of health. Checking the support status of the base OS has to be part of the job, not just running the scanner and reading the number.
 
-### Default credentials and shared SSH host keys
+### A default password and shared SSH host keys
 
-A count of CVEs reveals the software a vendor included. It does not indicate how the vendor set up the system. Therefore, I also examined two areas an SBOM misses: the accounts built into the image and the SSH host keys.
+A CVE count tells you what software a vendor pulled in. It says nothing about how they configured the thing. So I also looked at two items an SBOM never catches: the accounts baked into the image, and the SSH host keys.
 
-The worst case is **Linutop**. Its operating system image includes the `pi` user account still configured with the standard Raspberry Pi password (`raspberry`). This credential was removed from Raspberry Pi OS in 2022 because it represented the single most frequently exploited default on the platform. Anyone who can reach the device and knows this default password, which is to say anyone, is already authenticated. It is a hardcoded credential in the plainest sense.
+The worst offender is **Linutop**. Its image ships with the `pi` account still set to the default Raspberry Pi password, `raspberry` -- the password Raspberry Pi OS itself stopped shipping in 2022 precisely because it was the single most exploited default on the platform. Anyone who can reach the device and knows the default, which is everyone, is already in. That is a hardcoded credential in the plainest possible sense.
 
-The SSH configuration presents a distinct issue that impacts multiple images. Several manufacturers embed the **private SSH host keys** directly within the image, meaning every device flashed from that image presents the _same_ host key:
+The SSH story is separate and hits more images. Several vendors bake the **private SSH host keys** straight into the image, so every device flashed from it presents the _same_ key:
 
 | Product         | SSH on by default   | Host keys               | First-boot regeneration    | Password login                                    |
 | --------------- | ------------------- | ----------------------- | -------------------------- | ------------------------------------------------- |
@@ -103,13 +101,11 @@ The SSH configuration presents a distinct issue that impacts multiple images. Se
 | **Homey**       | Yes                 | Generated on first boot | `regenerate_ssh_host_keys` | `homey` set                                       |
 | **3DPrinterOS** | Yes                 | None in image           | n/a                        | `root` / `printeros` set                          |
 
-A shared private host key represents a genuine vulnerability rather than a superficial issue. Since every unit deployed carries the exact same key, its secrecy relies entirely on the image download, which is public. Any attacker who retrieves the image effectively controls the private key for all active devices. This eliminates SSH's defense against man-in-the-middle interception: a device located on the same network can pose as the legitimate player, and the connecting administrator receives no host-key warning because the key matches perfectly. The solution is straightforward (remove the keys during the build process and allow `ssh-keygen` to execute once per unit upon first startup, a practice already implemented by Yodeck and Homey), making its absence in other systems particularly noteworthy.
+A shared private host key is a real problem, not a cosmetic one. Every device in the field holds the identical key, so the key is only as secret as the image download, which is public. Pull the image and you own the private key for every deployed unit. That kills SSH's protection against man-in-the-middle interception: a box on the same network can impersonate the real player, and the admin connecting in gets no host-key warning, because the key matches. The fix is trivial -- delete the keys at build time and let `ssh-keygen` run once per device on first boot, which Yodeck and Homey already do -- which is what makes its absence everywhere else so annoying.
 
-To clarify exactly what I did and did not extract: the `pi` / `raspberry` pair constitutes the platform's own documented standard default, so identifying it reveals nothing that is not already public knowledge. I did not crack, nor am I publishing, the unique password hashes found on the other images, nor the private key material itself. The finding is simply that these keys exist and are shared, which can be observed without reading them. TLXOS deserves credit for disabling password authentication completely, even though its shared host key remains in place.
+To be clear about what I did and didn't extract: `pi` / `raspberry` is the platform's own documented default, so naming it gives away nothing that isn't already public. I did not crack, and am not publishing, the unique password hashes on the other images, nor any private key material. The finding is simply that the keys are there and shared, which you can see without ever reading them. Credit where it's due: TLXOS disables password authentication entirely, though its shared host key still stands.
 
-Under the CRA this maps to Annex I, Part I(2)(b), "ensure protection from unauthorised access by appropriate control mechanisms", and the guidance that products must not use default or unchangeable passwords. A shipped default credential is close to the textbook example of what that clause aims to prevent.
-
-### Update mechanisms vary widely
+### Update mechanisms are all over the map
 
 | Approach                                                 | Products                                        |
 | -------------------------------------------------------- | ----------------------------------------------- |
@@ -119,41 +115,41 @@ Under the CRA this maps to Annex I, Part I(2)(b), "ensure protection from unauth
 | Package manager pointed at an archived, end-of-life repo | Linutop                                         |
 | No OS-level update path visible in the image             | 3DPrinterOS                                     |
 
-Image-based OTA fits the appliance model well, yet it provides no real benefit unless the vendor actually rebuilds the image with up-to-date components. XOGO uses balena's update tools but delivers a Debian 10 payload, while info-beamer has signed A/B updates but still ships Python 2.7. In contrast, a package manager pointing to live Debian security repositories offers little help if no process runs the upgrade. Among the Debian-based images I examined, I found no unattended-upgrades policy configured.
+Image-based OTA is the right architecture for an appliance, but it only helps if the vendor actually rebuilds the image with current components. XOGO has balena's update machinery and ships a Debian 10 payload through it. info-beamer has signed A/B updates and ships Python 2.7 through them. And a package manager pointed at live Debian security repos only helps if something actually runs the upgrade. In none of the Debian-based images did I find an unattended-upgrades policy configured.
 
-### apt cannot carry a device across a Debian release
+### The part nobody mentions: apt can't cross a Debian release
 
-This is the detail that turns end of life from a slow-moving worry into a hard wall, and it is the most important thing to understand about the package-manager rows above. `apt upgrade` keeps a device current within one Debian release. It does not, in any realistic fleet sense, move a device between releases.
+This is the detail that turns "end of life" from a slow-moving worry into a brick wall, and it is the most important thing to understand about every package-manager row above. `apt upgrade` keeps a device current _within_ one Debian release. It does not, in any realistic fleet sense, move a device _between_ releases.
 
-A Debian major upgrade, such as Debian 11 to 12 or Debian 12 to 13, is a full `dist-upgrade`: thousands of packages replaced, maintainer scripts run, configuration files merged, and the C library and init system swapped underneath a running system. On a developer's desktop with a keyboard, a screen, and the ability to answer a debconf prompt, it is a supported but delicate procedure. On a headless signage player bolted behind a screen in a shop, pushed unattended across a whole fleet, with no console and no way to intervene if a maintainer script stops to ask a question, it is not something a sane operator attempts. A single interrupted upgrade, whether from a power cut, a dropped network, or one package conflict, leaves a bricked device that needs a site visit anyway. Nobody ships a cross-release `dist-upgrade` as an OTA strategy, and that is the whole point.
+A Debian major upgrade -- 11 to 12, or 12 to 13 -- is a full `dist-upgrade`: thousands of packages swapped, maintainer scripts run, config files merged, the C library and init system replaced underneath a running system. On my laptop, with a keyboard and a screen and the ability to answer a debconf prompt, it is a supported but delicate afternoon. On a headless signage player bolted behind a screen in a shop, pushed unattended to a whole fleet, with no console and no way to step in when a maintainer script stops to ask a question, it is not something any sane operator attempts. One interrupted upgrade -- a power cut, a dropped network, a single package conflict -- and you have a bricked device that needs a site visit anyway. Nobody ships a cross-release `dist-upgrade` as an OTA strategy, and that is the whole point.
 
-So for every Debian-based product here, the base OS has a hard expiry. Debian 12 receives security support into 2026 and LTS coverage until mid-2028; Debian 10 is already past it. When that date arrives, the apt channel these devices depend on simply stops receiving fixes, and there is no in-place path to the next release. At that point the device is not merely a little behind. It is permanently frozen on an unsupported OS, accumulating unpatched vulnerabilities for the rest of its physical life, and the only way forward is a reflash: someone physically re-imaging each unit, or the vendor shipping a whole new image through a channel that, for the apt-based products, does not exist today.
+So for every Debian-based product here, the base OS has a hard expiry date. Debian 12 gets security support into 2026 and LTS into mid-2028; Debian 10 is already past it. When that date lands, the apt channel these devices lean on simply stops getting fixes, and there is no in-place path to the next release. At that point the device isn't "a bit behind." It is permanently frozen on an unsupported OS, piling up unpatched CVEs for the rest of its physical life, and the only way forward is a reflash: someone physically re-imaging each unit, or the vendor pushing an entirely new image through a channel that, for the apt-based products, doesn't exist today.
 
-This is exactly where the transactional and image-based vendors hold a structural advantage. A/B image OTA and snap-based systems (ScreenlyOS, info-beamer, emteria, balena) can deliver an entirely new base OS as just another signed image, so crossing a release boundary is the same atomic operation as any other update, with a rollback if it fails. The apt-based products (Yodeck, TLXOS, 1Play, Homey, Linutop) have no equivalent. For them, the base OS reaching end of life is a truck roll rather than a download, and that cost is why, in practice, it often never happens at all.
+This is where the transactional and image-based vendors have a real structural edge. A/B image OTA and snap systems (ScreenlyOS, info-beamer, emteria, balena) can ship a whole new base OS as just another signed image -- crossing a release boundary is the same atomic operation as any other update, with a rollback if it fails. The apt-based products (Yodeck, TLXOS, 1Play, Homey, Linutop) have no equivalent. For them, the base OS reaching end of life is a truck roll, not a download, and that cost is exactly why, in practice, it usually never happens.
 
-## Why this matters: signage is on your network
+## Why I actually care: this stuff lives on your network
 
-Each of these units functions as a Linux computer connected to a network and physically located in public or semi-public areas. They are typically installed by facilities or marketing teams rather than IT staff and often remain untouched for years once operational. Many operate a full browser engine to display remote content, while several include VPN clients, remote-desktop clients, and printing stacks. A compromised signage player provides attackers with a foothold within the building's network that goes unnoticed.
+Every one of these devices is a Linux computer with network access, physically sitting in a public or semi-public space, installed by facilities or marketing rather than IT, and left alone for years once it works. Many run a full browser engine rendering remote content. Several bundle VPN clients, remote-desktop clients and printing stacks. A compromised signage player is a quiet foothold inside the building's network that nobody is watching.
 
-This is not just theoretical concern. Attackers already target unmanaged IoT and edge devices to gain initial access specifically because those units are the least likely to receive patches or monitoring. A device carrying thousands of fixable vulnerabilities in its browser and media stack, fetching content from the internet and sitting next to the corporate LAN, matches exactly the profile they seek.
+This isn't theoretical. Attackers already go after unmanaged IoT and edge devices to get initial access, precisely because those boxes are the least likely to be patched or monitored. Thousands of fixable vulnerabilities in a browser and media stack, on a device that fetches content from the internet and sits next to the corporate LAN, is the exact profile they look for.
 
-## Where the CRA comes in
+## And then there's the CRA
 
-These are commercial products sold in the EU, meaning the [Cyber Resilience Act](https://sbomify.com/compliance/eu-cra/) applies to them. The main obligations take effect starting **11 December 2027**, while reporting obligations began on **11 September 2026**. When measured against my findings:
+These are commercial products sold in the EU, so the [Cyber Resilience Act](https://sbomify.com/compliance/eu-cra/) applies to them. The main obligations kick in on **11 December 2027**, and the reporting obligations already started on **11 September 2026**. Lined up against what I found:
 
 - **No known exploitable vulnerabilities at release** (Annex I, Part I(2)(a)). Shipping a 2026 image built on a 2024 point release, or on an end-of-life base, is hard to square with this.
-- **Security updates, automatic by default** (Annex I, Part I(2)(c)). An image lacking a functional update path, or one pointing at an archived repository, fails to satisfy it.
-- **A defined support period, normally at least five years** (Article 13(8)). Coverage must include the underlying operating system, and you cannot guarantee five years of support for a distribution that has already reached end of life.
-- **An SBOM covering at least the top-level dependencies** (Annex I, Part II(1)). Every vendor included here must provide one. Creating it is straightforward; however, acting upon the findings is where most vendors currently fall short.
-- **Handling vulnerabilities without delay** (Annex I, Part II(2)). Finding 2,000 to 5,000 advisories for issues already fixed in a shipped image suggests no one is actively tracking them.
+- **Security updates, automatic by default** (Annex I, Part I(2)(c)). An image with no working update path, or one pointed at an archived repo, doesn't meet it.
+- **A defined support period, normally at least five years** (Article 13(8)). It has to cover the base OS, and you cannot promise five years of support on a distribution that is already end of life.
+- **An SBOM covering at least the top-level dependencies** (Annex I, Part II(1)). Every vendor here would need one. Generating it is the easy bit. Acting on it is where they fall down.
+- **Handling vulnerabilities without delay** (Annex I, Part II(2)). Two to five thousand already-fixed advisories in a shipping image is not what "without delay" looks like.
 - **No default or unchangeable passwords, and protection from unauthorised access** (Annex I, Part I(2)(b)). A shipped `pi` / `raspberry` default and shared SSH host keys are the textbook failures here.
 
-None of this requires extraordinary effort. The majority of the issues listed above vanish if you reconstruct the image from a supported base on a set schedule, deliver it via an update mechanism the device actually uses, and continuously watch the SBOM for new security flaws. That final step is what [sbomify](https://sbomify.com) addresses.
+None of this needs heroics. Most of the problems above disappear if you rebuild the image on a supported base on a schedule, ship it through an update mechanism the device actually uses, and keep watching the SBOM for new vulnerabilities as they land. That last part -- continuously watching the SBOM rather than scanning once at build time -- is the problem I spend my days on at [sbomify](https://sbomify.com), so take that recommendation with the appropriate grain of salt. The first two are just engineering discipline.
 
 ## Takeaways
 
-**If you buy these products**, request an SBOM and a declared support timeline from the vendor, and inquire how operating system updates reach the device. Place signage players on a segregated network segment and include them in your asset inventory.
+**If you buy these things**, ask the vendor for an SBOM and a stated support period, and ask how OS-level updates actually reach the device. Put signage players on an isolated network segment, and put them in your asset inventory.
 
-**If you build them**, consider the base image as a dependency with an end-of-life date, and remember that apt will not save you when that date arrives. There is no realistic cross-release OTA, so plan an image-based update path before your base OS expires rather than a fleet-wide reflash after it. Monitor the base just like you monitor application dependencies. Rebuild regularly, distribute through a channel the device uses, and do not rely on a clean scan of an end-of-life system. Also, manage the basics that an SBOM cannot detect: avoid default passwords and regenerate SSH host keys upon first boot instead of embedding one shared key into every unit.
+**If you build them**, treat the base image as a dependency with an end-of-life date, and remember apt won't save you when that date arrives. There is no realistic cross-release OTA, so plan an image-based update path _before_ your base OS expires, not a fleet-wide reflash after. Track the base the way you track your application dependencies. Rebuild regularly, ship through a channel the device uses, and don't trust a clean scan of an end-of-life system. And handle the basics an SBOM can't see: no default passwords, and regenerate SSH host keys on first boot instead of baking one shared key into every unit.
 
-**For everyone**: a hobby image two years old remains a hobby project. A commercial product trailing by two years is a liability, and starting in December 2027, it also becomes a compliance issue.
+**For everyone else**: a hobby image that's two years old is a hobby project. A commercial product that's two years behind is a liability -- and from December 2027, a compliance problem too. Turns out "pretty terrible" was generous.
