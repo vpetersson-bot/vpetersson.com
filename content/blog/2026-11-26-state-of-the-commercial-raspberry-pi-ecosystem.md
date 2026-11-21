@@ -12,9 +12,9 @@ tags:
 - digital-signage
 ---
 
-Back in [The Last 20%](/2026/08/21/the-last-20-percent/) I threw out a line that the digital signage industry's security posture is "pretty terrible." It was an aside. I didn't back it up. Here's me backing it up.
+Back in [The Last 20%](/2026/08/21/the-last-20-percent/) I threw out a line that the digital signage industry's security posture is "pretty terrible." It was an aside, and I never actually backed it up. So this post is me backing it up.
 
-The Raspberry Pi Imager, the official tool for flashing SD cards, has a section called **Freemium and paid-for OS**. These are images from companies selling a product on top of the Pi. Mostly digital signage players, plus a thin client, a smart-home hub, a 3D printer controller, and a commercial Android build. None of them are weekend projects. They end up in lobbies, meeting rooms, shop windows, factory floors and hospital corridors. Almost always on the corporate network. Usually on a VLAN nobody has looked at since install day. Almost never in anyone's asset inventory.
+The Raspberry Pi Imager, the official tool for flashing SD cards, has a section called **Freemium and paid-for OS**. These are images from companies selling a product on top of the Pi—mostly digital signage players, plus a thin client, a smart-home hub, a 3D printer controller, and a commercial Android build. None of them are weekend projects. They end up in lobbies, meeting rooms, shop windows, factory floors and hospital corridors. Almost always on the corporate network. Usually on a VLAN nobody has looked at since install day. Almost never in anyone's asset inventory.
 
 So I downloaded every one of them, built an SBOM, and ran it through a vulnerability scanner. I was right. It's worse than "pretty terrible."
 
@@ -52,7 +52,7 @@ A few things to know before you read the table:
 | **Fugo One**                                   | n/a                                          | n/a                                                                          |              n/a |             n/a |           n/a | Image URL in Imager returns 404                 |
 | **vetra player**                               | n/a                                          | n/a                                                                          |              n/a |             n/a |           n/a | Listed in Imager with no images                 |
 
-\* The same packages, checked against Debian 11 advisory data. See "Scanners go quiet exactly when you need them" below.
+\* The same packages, checked against Debian 11 advisory data. See "The scanner blind spot" below.
 † Only the application layer could be scanned. OSV has no Arch Linux (ALPM) ecosystem, so none of the 386 OS packages were checked.
 ‡ I read the Android build properties. I did not build a full Android SBOM.
 
@@ -78,7 +78,7 @@ The Debian 12 images look fine on paper, because bookworm is still in LTS. In pr
 
 The same handful of packages shows up at the top of every Debian-based image: `webkit2gtk`, `imagemagick`, `ffmpeg`, `chromium`, `vim`, `binutils`, `pillow`. These are the media and browser bits a signage player needs. They're also the bits parsing untrusted content all day.
 
-### Scanners go quiet exactly when you need them
+### The scanner blind spot
 
 This one should worry anyone who trusts a scanner dashboard. I scanned Linutop's Raspbian 10 packages against OSV's **Debian 10** data and got **14** advisories. Against **Debian 11** data, the same packages matched **452**. XOGO went from 143 to 280.
 
@@ -88,7 +88,7 @@ The reason is boring. Once a release is archived, the upstream security tracker 
 
 A CVE count tells you what software a vendor pulled in. It says nothing about how they set the thing up. So I also looked at two things an SBOM never sees: the accounts baked into the image, and the SSH host keys.
 
-The worst offender is **Linutop**. The image ships with the `pi` account still set to the default Raspberry Pi password, `raspberry`. That's the password [Raspberry Pi OS itself dropped in 2022](https://www.raspberrypi.com/news/raspberry-pi-bullseye-update-april-2022/), on security grounds, because it was one of the most exploited defaults on the platform. Anyone who can reach the box and knows the default, which is everyone, is already in. Hardcoded credential, no asterisk.
+The worst offender is **Linutop**. The image ships with the `pi` account still set to the default Raspberry Pi password, `raspberry`. That's the password [Raspberry Pi OS itself dropped in 2022](https://www.raspberrypi.com/news/raspberry-pi-bullseye-update-april-2022/), on security grounds, because it was one of the most exploited defaults on the platform. Anyone who can reach the box and knows the default, which is everyone, is already in. That's a hardcoded credential in the most literal sense of the term.
 
 The SSH problem is separate and hits more images. Several vendors bake the **private SSH host keys** straight into the image, so every device flashed from it hands out the _same_ key:
 
@@ -117,7 +117,7 @@ Worth being precise about what I pulled out and what I didn't. `pi` / `raspberry
 
 Image-based OTA is the right architecture for an appliance, but only if the vendor actually rebuilds the image with current components. XOGO has balena's update machinery and ships a Debian 10 payload through it. info-beamer has signed A/B updates and ships Python 2.7 through them. And a package manager pointed at live Debian security repos only helps if something runs the upgrade. In none of the Debian-based images did I find an unattended-upgrades policy turned on.
 
-### The part nobody mentions: apt can't cross a Debian release
+### apt can't cross a Debian release
 
 This is the detail that turns "end of life" from a slow-moving worry into a brick wall, and it's the thing to understand about every package-manager row above. `apt upgrade` keeps a device current _inside_ one Debian release. It does not, in any realistic fleet sense, move a device from one release to the next.
 
@@ -127,19 +127,19 @@ So for every Debian-based product here, the base OS has a hard expiry date. [Deb
 
 This is where the image-based vendors have a real edge. A/B image OTA and snap systems (ScreenlyOS, info-beamer, emteria, balena) ship a whole new base OS as just another signed image. Crossing a release boundary is the same operation as any other update, and it rolls back if it fails. The pure apt-based products here (Yodeck, 1Play, Homey, Linutop) have nothing like it, and for them the base OS reaching end of life is a truck roll, not a download, which is exactly why it usually never happens. TLXOS turns out to be a partial exception, for reasons I'll come to.
 
-### "Can't they just dist-upgrade on first boot?"
+### The first-boot upgrade argument
 
-Fair question. It's the strongest objection to everything above, so let me make the case for it properly before I knock it down.
+The obvious objection: can't they just run a full upgrade on first boot? It's the strongest objection to everything above, so let me make the case for it properly before I knock it down.
 
 First boot is the ideal moment to take the hit. The device is on a bench, not in service. No uptime to protect, no screen anyone's watching, no SLA. So you ship whatever base you built against, and the first time the unit powers on it runs `apt update && apt full-upgrade`, pulls every pending fix, and goes into service current. Cloud images do a version of this through [cloud-init](https://docs.cloud-init.io/en/stable/reference/yaml_examples/package_update_upgrade.html) every day. You could even script the cross-release jump: set `DEBIAN_FRONTEND=noninteractive`, force the old conffiles, repoint `sources.list` at the new release, and dist-upgrade before first light. Ship once, heal on boot, never reflash.
 
-Here's where that lands. Within a release, it's completely right, and it would erase most of this post. A first-boot `full-upgrade` clears the "fix available" column wholesale: Yodeck's 2,643, 1Play's 2,617, all of it, because those are in-release fixes sitting in the same repo the device already points at.
+Within a release, this is completely right, and it would erase most of this post. A first-boot `full-upgrade` clears the "fix available" column wholesale: Yodeck's 2,643, 1Play's 2,617, all of it, because those are in-release fixes sitting in the same repo the device already points at.
 
 The awkward part for the vendors is that none of them do even this, and I went back into the images to make sure I wasn't guessing. Not one of the five apt-based builds has `unattended-upgrades` installed. The stock `apt-daily` timer is there, but it's inert: no `50unattended-upgrades`, no `20auto-upgrades`, nothing behind it to actually install anything. 1Play has gone the other way and stripped the apt timers out of `timers.target.wants` entirely, and pins Chromium's own auto-update off for good measure. The clearest tell is Homey. It's built on the standard Raspberry Pi cloud-init image, and the first-boot `user-data` on the boot partition still carries the stock lines `#package_update: true` and `#package_upgrade: true`, commented out, directly under a heading that reads "Update apt database and upgrade packages on first boot." The switch ships in the image, one `#` away from on, and it's left off. (Homey's own app container does pull `:latest` on boot. The Debian base underneath it does not.)
 
 So the single easiest win in the whole exercise is sitting there untaken. If you ship one thing after reading this, ship a first-boot `full-upgrade`.
 
-Here's where it doesn't. The cross-release version is a different animal, and first boot is the worst place to run it, not the best.
+The cross-release jump is a different animal, though, and first boot is the worst place to run it, not the best.
 
 - **Debian doesn't let you skip.** [Upgrades are only supported from the release right before](https://www.debian.org/releases/bookworm/amd64/release-notes/ch-upgrading.en.html), so 10 to 12 means 10 to 11 to 12, two full dist-upgrades back to back. The release notes document the direct jump failing outright, and the same chapter warns against running the upgrade remotely for exactly the reasons below. You're chaining the fragile operation, not dodging it.
 - **Fail on first boot and the customer unboxes a brick.** A device that dies in service at least worked for a while. One that bricks itself the first time it's plugged in is a return and a support ticket on day zero. Worse product, not a safer one.
@@ -147,25 +147,25 @@ Here's where it doesn't. The cross-release version is a different animal, and fi
 - **The field breaks it in boring ways.** Vendor and third-party repos (Citrix, balena, the vendor's own mirror) with no build for the new release, held packages, a conffile prompt nothing can answer, Pi firmware and kernel changes, a 16GB eMMC that runs out of space halfway through swapping the userland. Any one of those stalls it.
 - **It only fires once.** First boot is a one-time event. It catches the device up on day one and does nothing eighteen months later when the base itself goes end of life. There is no second first boot. You're back at the same wall, now with a unit that's been in a wall bracket for a year and a half.
 
-And the kicker: if you're willing to build and trust a fully automated, unattended, rollback-free dist-upgrade that runs across releases, you've reinvented image-based OTA, just the brittle version without the atomic swap or the rollback. At which point, ship the image.
+The thing is, if you're willing to build and trust a fully automated, unattended, rollback-free dist-upgrade that runs across releases, you've reinvented image-based OTA—just the brittle version, without the atomic swap or the rollback. At which point, ship the image.
 
-So the honest answer is split. First-boot `full-upgrade` is real, it's the free win nobody here is taking, and every apt-based vendor on this list should turn it on tomorrow. First-boot `dist-upgrade` as a stand-in for crossing releases is a party trick that fails in exactly the conditions signage gets installed into, and it still leaves you reflashing when the base expires.
+So the honest answer is split. First-boot `full-upgrade` is real, it's the free win nobody here is taking, and every apt-based vendor on this list should turn it on tomorrow. First-boot `dist-upgrade` as a stand-in for crossing releases is wishful thinking that falls over in exactly the conditions signage gets installed into, and it still leaves you reflashing when the base expires.
 
-### What about an OTA agent?
+### OTA agents
 
-That's the right instinct, and it's exactly what separates the two groups. An OTA agent, whether you roll your own with Mender, RAUC or SWUpdate, or adopt a whole platform like balenaOS or Ubuntu Core, does atomic A/B image updates with automatic rollback. The thing apt can't do, shipping a whole new base OS across a release boundary, is just another signed image to an OTA agent. It's the only mechanism in this roundup that clears the end-of-life wall without a truck roll, and the vendors who have one (ScreenlyOS on snaps, info-beamer and emteria on signed A/B, XOGO on balena) are the ones who can actually stay current for years.
+An OTA agent is the actual fix, and it's exactly what separates the two groups here. Roll your own with Mender, RAUC or SWUpdate, or adopt a whole platform like balenaOS or Ubuntu Core, and you get atomic A/B image updates with automatic rollback. The thing apt can't do, shipping a whole new base OS across a release boundary, is just another signed image to an OTA agent. It's the only mechanism in this roundup that clears the end-of-life wall without a truck roll, and the vendors who have one (ScreenlyOS on snaps, info-beamer and emteria on signed A/B, XOGO on balena) are the ones who can actually stay current for years.
 
 I went looking for one inside the apt-based images too, and this is the part where trusting the SBOM would have lied to me, because an OTA agent is usually a vendor binary, not a package. One of them has it. TLXOS ships `tms_client`, the ThinLinX management agent, and the binary is full of partition-flashing logic: "Erasing kernel partition", "Erasing root partition", "Error programming boot partition". The disk even carries a separate "maint" partition for the job. So a TLXOS box can be reimaged out of band from ThinLinX's management server, apt or not. Whether that path actually delivers a current, patched OS depends entirely on whether ThinLinX builds and pushes one, which I can't tell from the image, but the mechanism is real, and it's the kind of thing a package scan never shows you. 1Play's `commander` binary can shell out to `apt-get install` on command, which is a remote hand on the package manager, but not a full upgrade and not image-based. The other three have nothing: single root partition, no A/B, no agent. Homey's app container pulls `:latest` on boot, but the Debian base underneath has no updater at all.
 
 The reason the pure-apt vendors haven't just bolted one on: an OTA agent is not `apt install mender` and done. It wants an A/B partition layout, signed image artifacts, a build pipeline that produces whole-image updates, and a server to hand them out. That's re-architecting the product, not flipping a flag. It's still the right thing to build. It's also why, years into shipping, most of them are still on apt and a reflash.
 
-## Why I care: this stuff lives on your network
+## Why this matters
 
 Every one of these is a Linux computer with network access, sitting in a public or semi-public space, installed by facilities or marketing rather than IT, and left alone for years once it works. Many run a full browser engine rendering remote content. Several bundle VPN clients, remote-desktop clients and printing stacks. A compromised signage player is a quiet foothold inside the building's network, and nobody's watching it.
 
 This isn't theory. Attackers already go after unmanaged IoT and edge devices to get in, exactly because those boxes are the least likely to be patched or watched. Thousands of fixable vulnerabilities in a browser and media stack, on a device that pulls content off the internet and sits next to the corporate LAN, is the exact thing they look for.
 
-## And then there's the CRA
+## The CRA angle
 
 These are commercial products sold in the EU, so the [Cyber Resilience Act](https://sbomify.com/compliance/eu-cra/) covers them. The main obligations start on **11 December 2027**, and the reporting obligations already kicked in on **11 September 2026**. Against what I found:
 
@@ -178,7 +178,7 @@ These are commercial products sold in the EU, so the [Cyber Resilience Act](http
 
 None of this needs heroics. Most of it goes away if you rebuild the image on a supported base on a schedule, ship it through an update mechanism the device actually uses, and keep watching the SBOM for new vulnerabilities as they land. That last part, watching the SBOM over time instead of scanning once at build, is literally what I do at [sbomify](https://sbomify.com), so yes, I have a horse in this race. The first two are just doing the job.
 
-## Takeaways
+## The takeaways
 
 **If you buy these things**, ask the vendor for an SBOM and a stated support period, and ask how OS-level updates actually reach the device. Put signage players on their own network segment, and put them in your asset inventory.
 
