@@ -127,6 +127,26 @@ So for every Debian-based product here, the base OS has a hard expiry date. Debi
 
 This is where the image-based vendors have a real edge. A/B image OTA and snap systems (ScreenlyOS, info-beamer, emteria, balena) ship a whole new base OS as just another signed image. Crossing a release boundary is the same operation as any other update, and it rolls back if it fails. The apt-based products (Yodeck, TLXOS, 1Play, Homey, Linutop) have nothing like it. For them, the base OS reaching end of life is a truck roll, not a download, and that cost is exactly why it usually never happens.
 
+### "Can't they just dist-upgrade on first boot?"
+
+Fair question. It's the strongest objection to everything above, so let me make the case for it properly before I knock it down.
+
+First boot is the ideal moment to take the hit. The device is on a bench, not in service. No uptime to protect, no screen anyone's watching, no SLA. So you ship whatever base you built against, and the first time the unit powers on it runs `apt update && apt full-upgrade`, pulls every pending fix, and goes into service current. Cloud images do a version of this through cloud-init every day. You could even script the cross-release jump: set `DEBIAN_FRONTEND=noninteractive`, force the old conffiles, repoint `sources.list` at the new release, and dist-upgrade before first light. Ship once, heal on boot, never reflash.
+
+Here's where that lands. Within a release, it's completely right, and it would erase most of this post. A first-boot `full-upgrade` clears the "fix available" column wholesale: Yodeck's 2,643, 1Play's 2,617, all of it, because those are in-release fixes sitting in the same repo the device already points at. The awkward part for the vendors is that none of them do even this. The snapshots are stale and I found no unattended-upgrades turned on anywhere, so the single easiest win in the whole exercise is sitting there untaken. If you ship one thing after reading this, ship a first-boot `full-upgrade`.
+
+Here's where it doesn't. The cross-release version is a different animal, and first boot is the worst place to run it, not the best.
+
+- **Debian doesn't let you skip.** 10 to 12 is 10 to 11 to 12, two full dist-upgrades back to back. You're chaining the fragile operation, not dodging it.
+- **Fail on first boot and the customer unboxes a brick.** A device that dies in service at least worked for a while. One that bricks itself the first time it's plugged in is a return and a support ticket on day zero. Worse product, not a safer one.
+- **It assumes a network, and signage often doesn't have one yet.** Installs happen on captive Wi-Fi, flaky site links, or fully offline. No network at first boot means the upgrade quietly no-ops and the unit goes live on the stale, maybe end-of-life, base with nobody aware it skipped.
+- **The field breaks it in boring ways.** Vendor and third-party repos (Citrix, balena, the vendor's own mirror) with no build for the new release, held packages, a conffile prompt nothing can answer, Pi firmware and kernel changes, a 16GB eMMC that runs out of space halfway through swapping the userland. Any one of those stalls it.
+- **It only fires once.** First boot is a one-time event. It catches the device up on day one and does nothing eighteen months later when the base itself goes end of life. There is no second first boot. You're back at the same wall, now with a unit that's been in a wall bracket for a year and a half.
+
+And the kicker: if you're willing to build and trust a fully automated, unattended, rollback-free dist-upgrade that runs across releases, you've reinvented image-based OTA, just the brittle version without the atomic swap or the rollback. At which point, ship the image.
+
+So the honest answer is split. First-boot `full-upgrade` is real, it's the free win nobody here is taking, and every apt-based vendor on this list should turn it on tomorrow. First-boot `dist-upgrade` as a stand-in for crossing releases is a party trick that fails in exactly the conditions signage gets installed into, and it still leaves you reflashing when the base expires.
+
 ## Why I care: this stuff lives on your network
 
 Every one of these is a Linux computer with network access, sitting in a public or semi-public space, installed by facilities or marketing rather than IT, and left alone for years once it works. Many run a full browser engine rendering remote content. Several bundle VPN clients, remote-desktop clients and printing stacks. A compromised signage player is a quiet foothold inside the building's network, and nobody's watching it.
@@ -150,6 +170,6 @@ None of this needs heroics. Most of it goes away if you rebuild the image on a s
 
 **If you buy these things**, ask the vendor for an SBOM and a stated support period, and ask how OS-level updates actually reach the device. Put signage players on their own network segment, and put them in your asset inventory.
 
-**If you build them**, treat the base image as a dependency with an expiry date, and remember apt won't save you when it arrives. There's no realistic cross-release OTA, so plan an image-based update path _before_ your base OS expires, not a fleet-wide reflash after. Track the base the way you track your app dependencies. Rebuild on a schedule, ship through a channel the device uses, and don't trust a clean scan of an end-of-life system. And do the basics an SBOM can't see: no default passwords, and regenerate SSH host keys on first boot instead of baking one shared key into every unit.
+**If you build them**, turn on a first-boot `full-upgrade` today, because it's free and it clears most of the backlog above. Then treat the base image as a dependency with an expiry date, and remember apt won't save you when it arrives. Within-release upgrades keep you current until the base goes end of life; after that there's no realistic cross-release OTA, so plan an image-based update path _before_ your base OS expires, not a fleet-wide reflash after. Track the base the way you track your app dependencies. Rebuild on a schedule, ship through a channel the device uses, and don't trust a clean scan of an end-of-life system. And do the basics an SBOM can't see: no default passwords, and regenerate SSH host keys on first boot instead of baking one shared key into every unit.
 
 **For everyone else**: a hobby image that's two years old is a hobby project. A commercial product that's two years behind is a liability, and from December 2027 it's a compliance problem too. Turns out "pretty terrible" was generous.
