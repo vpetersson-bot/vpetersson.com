@@ -1,0 +1,27 @@
+{{- /* A page's content as Markdown. Markdown files keep their source, with
+     any raw HTML in them (embeds, legacy markup) converted by inline-html;
+     .html content files go through from-html. Pages whose body lives in a
+     layout (about, consulting, speaking, projects, remote work) keep it in
+     partials/pages/, which both the layout and this partial render. Links
+     are made absolute so the copy works wherever it is pasted. Returns a
+     string. */ -}}
+{{- $md := "" -}}
+{{- $pagePartial := printf "pages/%s.html" (cond .IsNode (printf "%s-list" .Type) (.Layout | default .Type)) -}}
+{{- if templates.Exists (printf "partials/%s" $pagePartial) -}}
+  {{- $md = partial "markdown/from-html.html" (partial $pagePartial .) -}}
+{{- else if and .File (eq .File.Ext "md") -}}
+  {{- $md = .RenderShortcodes | string -}}
+  {{- /* Fenced and inline code is set aside first: XML and HTML examples stay as written. */ -}}
+  {{- $code := findRE "(?ms)^[ \t]*(```|~~~).*?^[ \t]*(```|~~~)[ \t]*$|`[^`\n]+`" $md -}}
+  {{- range $i, $c := $code }}{{ $md = replace $md $c (printf "@@CODE%d@@" $i) }}{{ end -}}
+  {{- $md = partial "markdown/inline-html.html" $md -}}
+  {{- $md = $md | replaceRE `(?m)^[ \t]*</?(?:p|div|span|center)\b[^>]*>[ \t]*\n?` "" | replaceRE `</?(?:p|div|span|center)\b[^>]*>` "" -}}
+  {{- $md = $md | replaceRE `\n{3,}` "\n\n" -}}
+  {{- range $i, $c := $code }}{{ $md = replace $md (printf "@@CODE%d@@" $i) $c }}{{ end -}}
+{{- else -}}
+  {{- $md = partial "markdown/from-html.html" .Content -}}
+{{- end -}}
+{{- $base := strings.TrimSuffix "/" site.BaseURL -}}
+{{- $md = $md | replaceRE `\]\(/([^/])` (printf "](%s/$1" $base) -}}
+{{- $md = $md | replaceRE `\]\(#` (printf "](%s#" .Permalink) -}}
+{{- return strings.TrimSpace $md -}}

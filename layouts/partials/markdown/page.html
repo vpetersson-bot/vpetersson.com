@@ -1,0 +1,145 @@
+{{- /* The whole Markdown copy of a page (index.md): title, summary, metadata,
+     content, and on list pages links to everything listed. Called from the
+     *.markdown.md templates. Returns a string. */ -}}
+{{- $p := . -}}
+{{- $body := partial "markdown/body.html" $p -}}
+{{- $out := slice -}}
+{{- $oneLine := `\s+` -}}
+
+{{- /* Pages rendered from HTML open with their own h1 (the page header),
+     which is shorter than their SEO title; it leads the copy instead. */ -}}
+{{- $title := $p.Title -}}
+{{- if $p.IsHome }}{{ $title = "Viktor Petersson" }}{{ end -}}
+{{- if eq $p.Kind "term" }}{{ $title = printf "Posts tagged “%s”" $p.Title }}{{ end -}}
+{{- with findRESubmatch `^# (.+)\n*` $body 1 -}}
+  {{- $title = index . 0 1 -}}
+  {{- $body = replace $body (index . 0 0) "" -}}
+{{- end -}}
+{{- $out = $out | append (printf "# %s" ($title | replaceRE $oneLine " " | strings.TrimSpace)) -}}
+{{- with $p.Description | default (cond $p.IsHome site.Params.description "") -}}
+  {{- $out = $out | append (printf "> %s" (. | plainify | replaceRE $oneLine " " | strings.TrimSpace)) -}}
+{{- end -}}
+
+{{- /* Facts the HTML shows around the content. */ -}}
+{{- $meta := slice -}}
+{{- if and (eq $p.Kind "page") (eq $p.Section "blog") -}}
+  {{- $meta = $meta | append "- **Author:** Viktor Petersson" -}}
+  {{- $meta = $meta | append (printf "- **Published:** %s" ($p.Date.Format "2006-01-02")) -}}
+  {{- if and (not $p.Lastmod.IsZero) (ne ($p.Lastmod.Format "2006-01-02") ($p.Date.Format "2006-01-02")) -}}
+    {{- $meta = $meta | append (printf "- **Updated:** %s" ($p.Lastmod.Format "2006-01-02")) -}}
+  {{- end -}}
+  {{- $meta = $meta | append (printf "- **Reading time:** %s" (partial "reading-time.html" $p)) -}}
+  {{- with $p.GetTerms "tags" }}{{ $names := slice }}{{ range . }}{{ $names = $names | append .LinkTitle }}{{ end }}{{ $meta = $meta | append (printf "- **Tags:** %s" (delimit $names ", ")) }}{{ end -}}
+{{- else if and (eq $p.Kind "page") (eq $p.Section "podcast") -}}
+  {{- $meta = $meta | append "- **Show:** Nerding Out with Viktor, hosted by Viktor Petersson" -}}
+  {{- with $p.Params.season }}{{ $meta = $meta | append (printf "- **Episode:** Season %v, episode %v" . $p.Params.episode) }}{{ end -}}
+  {{- with $p.Params.guests }}{{ $meta = $meta | append (printf "- **Guests:** %s" (delimit . ", ")) }}{{ end -}}
+  {{- $meta = $meta | append (printf "- **Published:** %s" ($p.Date.Format "2006-01-02")) -}}
+  {{- with $p.Params.duration }}{{ $meta = $meta | append (printf "- **Duration:** %s" (partial "format-duration.html" .)) }}{{ end -}}
+  {{- $listen := slice -}}
+  {{- range slice (slice "youtube" "YouTube") (slice "spotify" "Spotify") (slice "apple" "Apple Podcasts") (slice "amazon" "Amazon Music") -}}
+    {{- $label := index . 1 -}}
+    {{- with index $p.Params (index . 0) }}{{ $listen = $listen | append (printf "[%s](%s)" $label .) }}{{ end -}}
+  {{- end -}}
+  {{- with $listen }}{{ $meta = $meta | append (printf "- **Watch or listen:** %s" (delimit . ", ")) }}{{ end -}}
+{{- else if and (eq $p.Kind "page") (eq $p.Section "projects") -}}
+  {{- with $p.Params.tagline }}{{ $meta = $meta | append (printf "- **Tagline:** %s" .) }}{{ end -}}
+  {{- with $p.Params.repo }}{{ $meta = $meta | append (printf "- **Source:** https://github.com/%s" .) }}{{ end -}}
+  {{- with $p.Params.language }}{{ $meta = $meta | append (printf "- **Language:** %s" .) }}{{ end -}}
+  {{- with $p.Params.license }}{{ $meta = $meta | append (printf "- **License:** %s" .) }}{{ end -}}
+  {{- with $p.Params.image_url }}{{ $meta = $meta | append (printf "- **Container image:** `%s`" .) }}{{ end -}}
+  {{- with $p.Params.demo }}{{ $meta = $meta | append (printf "- **Live demo:** %s" .) }}{{ end -}}
+  {{- with $p.Params.blog_post }}{{ $meta = $meta | append (printf "- **%s:** %s" .title (.url | absURL)) }}{{ end -}}
+  {{- with $p.Params.spec }}{{ $meta = $meta | append (printf "- **At a glance:** %s" (delimit . "; ")) }}{{ end -}}
+{{- end -}}
+{{- with $meta }}{{ $out = $out | append (delimit . "\n") }}{{ end -}}
+
+{{- with and (eq $p.Section "projects") (eq $p.Kind "page") $p.Params.summary }}{{ $out = $out | append . }}{{ end -}}
+{{- with $body }}{{ $out = $out | append . }}{{ end -}}
+
+{{- /* Podcast transcript, one paragraph per speaker turn. */ -}}
+{{- if and (eq $p.Kind "page") (eq $p.Section "podcast") $p.File -}}
+  {{- with index site.Data.transcripts ($p.File.BaseFileName | lower) -}}
+    {{- $turns := slice -}}
+    {{- $speaker := "" -}}{{- $start := "" -}}{{- $words := slice -}}
+    {{- range . -}}
+      {{- if ne .speaker_name $speaker -}}
+        {{- with $words }}{{ $turns = $turns | append (printf "**%s** [%s]: %s" $speaker $start (delimit . " ")) }}{{ end -}}
+        {{- $speaker = .speaker_name -}}{{- $start = .startTime -}}{{- $words = slice -}}
+      {{- end -}}
+      {{- $words = $words | append .sentence -}}
+    {{- end -}}
+    {{- with $words }}{{ $turns = $turns | append (printf "**%s** [%s]: %s" $speaker $start (delimit . " ")) }}{{ end -}}
+    {{- $out = $out | append (printf "## Transcript\n\n%s" (delimit $turns "\n\n")) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Events, which the about and speaking pages render from data. */ -}}
+{{- if eq $p.Type "about" -}}
+  {{- $years := slice -}}
+  {{- range site.Data.events -}}
+    {{- $rows := slice -}}
+    {{- /* Same order as partials/events-cards.html: dated newest first, then undated in file order. */ -}}
+    {{- $dated := where .events "date" "!=" nil -}}
+    {{- $ordered := slice -}}
+    {{- with $dated }}{{ $ordered = sort . "date" "desc" }}{{ end -}}
+    {{- with where .events "date" "==" nil }}{{ $ordered = $ordered | append . }}{{ end -}}
+    {{- range $ordered }}{{ $rows = $rows | append (partial "markdown/event.html" .) }}{{ end -}}
+    {{- $years = $years | append (printf "### %v\n\n%s" .year (delimit $rows "\n")) -}}
+  {{- end -}}
+  {{- $out = $out | append (printf "## Press, Mentions and Interviews\n\n%s" (delimit $years "\n\n")) -}}
+  {{- $out = $out | append (printf "Conference talks and panels are listed on the [speaking page](%s)." ("speaking/index.md" | absURL)) -}}
+{{- else if eq $p.Type "speaking" -}}
+  {{- $speaking := partial "speaking-events.html" $p -}}
+  {{- with $speaking.upcoming -}}
+    {{- $rows := slice }}{{ range . }}{{ $rows = $rows | append (partial "markdown/event.html" .) }}{{ end -}}
+    {{- $out = $out | append (printf "## Where to find me next\n\n%s" (delimit $rows "\n")) -}}
+  {{- end -}}
+  {{- $years := slice -}}
+  {{- range $speaking.pastByYear -}}
+    {{- $rows := slice }}{{ range .events }}{{ $rows = $rows | append (partial "markdown/event.html" .) }}{{ end -}}
+    {{- $years = $years | append (printf "### %v\n\n%s" .year (delimit $rows "\n")) -}}
+  {{- end -}}
+  {{- $out = $out | append (printf "## Previous appearances\n\n%s" (delimit $years "\n\n")) -}}
+{{- end -}}
+
+{{- /* Home: where everything is, and what is new. */ -}}
+{{- if $p.IsHome -}}
+  {{- $out = $out | append "Viktor Petersson is a tech entrepreneur, security advocate, and host of the \"Nerding Out with Viktor\" podcast. He is based in London, has been building and running tech companies for over 15 years, and leads Screenly, the developer-friendly digital signage platform." -}}
+  {{- $sections := slice -}}
+  {{- range slice (slice "/about" "About: background, press and interviews") (slice "/blog" "Blog: DevSecOps, cloud, open source, security, remote work and entrepreneurship") (slice "/podcast" "Podcast: Nerding Out with Viktor, every episode with transcripts") (slice "/projects" "Projects: Screenly, Anthias, sbomify and open-source tools") (slice "/speaking" "Speaking: conference talks and panels, including upcoming ones") (slice "/consulting" "Consulting: DevSecOps and supply chain security advisory") (slice "/reading-log" "Reading log") (slice "/remote-work" "Remote work: talks, articles and podcasts") -}}
+    {{- $label := index . 1 -}}
+    {{- with site.GetPage (index . 0) -}}
+      {{- with .OutputFormats.Get "markdown" }}{{ $sections = $sections | append (printf "- [%s](%s)" $label .Permalink) }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $out = $out | append (printf "## Sections\n\n%s" (delimit $sections "\n")) -}}
+  {{- $latest := slice -}}
+  {{- range first 10 (union (where site.RegularPages "Section" "blog") (where site.RegularPages "Section" "podcast")).ByDate.Reverse -}}
+    {{- $url := partial "markdown/url.html" . -}}
+    {{- $latest = $latest | append (printf "- [%s](%s) (%s, %s)" (.Title | replaceRE $oneLine " " | strings.TrimSpace) $url (cond (eq .Section "podcast") "podcast" "blog") (.Date.Format "2006-01-02")) -}}
+  {{- end -}}
+  {{- $out = $out | append (printf "## Latest\n\n%s" (delimit $latest "\n")) -}}
+  {{- $out = $out | append (printf "## More\n\n- [Index of every page (llms.txt)](%s)\n- [Every page in one file (llms-full.txt)](%s)\n- [Blog RSS](%s)\n- [Podcast RSS](%s)" ("llms.txt" | absURL) ("llms-full.txt" | absURL) ("blog/index.xml" | absURL) site.Data.main.podcast.rss) -}}
+{{- end -}}
+
+{{- /* List pages: everything they list, newest first. */ -}}
+{{- if and $p.IsNode (not $p.IsHome) (not (templates.Exists (printf "partials/pages/%s-list.html" $p.Type))) -}}
+  {{- $pages := $p.Pages.ByDate.Reverse -}}
+  {{- if eq $p.Kind "taxonomy" }}{{ $pages = $p.Pages.ByTitle }}{{ end -}}
+  {{- with $pages -}}
+    {{- $rows := slice -}}
+    {{- range . -}}
+      {{- $url := partial "markdown/url.html" . -}}
+      {{- $row := printf "- [%s](%s)" (.LinkTitle | replaceRE $oneLine " " | strings.TrimSpace) $url -}}
+      {{- if eq .Kind "page" }}{{ $row = printf "%s (%s)" $row (.Date.Format "2006-01-02") }}{{ end -}}
+      {{- if eq .Kind "term" }}{{ $row = printf "%s (%d)" $row (len .Pages) }}{{ end -}}
+      {{- with .Description }}{{ $row = printf "%s: %s" $row (. | plainify | replaceRE $oneLine " " | strings.TrimSpace) }}{{ end -}}
+      {{- $rows = $rows | append $row -}}
+    {{- end -}}
+    {{- $out = $out | append (printf "## %s\n\n%s" (cond (eq $p.Kind "taxonomy") "All tags" "Pages") (delimit $rows "\n")) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $out = $out | append (printf "---\n\nSource: %s" $p.Permalink) -}}
+{{- return delimit $out "\n\n" -}}

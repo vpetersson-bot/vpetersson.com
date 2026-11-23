@@ -144,6 +144,8 @@
   {{ end }}
 
   <link rel="canonical" href="{{ .Permalink }}" />
+  {{- /* The page's Markdown copy (index.md next to index.html), for AI agents. */}}
+  {{ with .OutputFormats.Get "markdown" }}<link rel="alternate" type="text/markdown" href="{{ .Permalink }}" title="Markdown">{{ end }}
 
   <!-- Resource hints for third-party origins -->
   <link rel="dns-prefetch" href="https://www.googletagmanager.com">

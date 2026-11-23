@@ -3,3 +3,6 @@ Allow: /
 
 Sitemap: {{ "sitemap.xml" | absURL }}
 Sitemap: {{ "video-sitemap.xml" | absURL }}
+
+# For AI agents: {{ "llms.txt" | absURL }} indexes the site, and every page
+# has a Markdown copy at index.md next to it (e.g. {{ "about/index.md" | absURL }}).
