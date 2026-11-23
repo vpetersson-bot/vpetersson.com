@@ -1,7 +1,7 @@
 ---
 slug: state-of-the-commercial-raspberry-pi-ecosystem
 title: "The State of Commercial Raspberry Pi Security: I Scanned Every Paid-For OS in Raspberry Pi Imager"
-date: '2026-11-26T09:00:00Z'
+date: '2026-11-23T09:00:00Z'
 description: "I downloaded every image in the 'Freemium and paid-for OS' section of Raspberry Pi Imager, built an SBOM for each one, and ran them through OSV. End-of-life Debian, Python 2.7, stale Chromium, a default password, shared SSH host keys, and thousands of already-fixed CVEs. On boxes that live inside business networks."
 tags:
 - security
