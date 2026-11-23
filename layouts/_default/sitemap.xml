@@ -4,6 +4,11 @@
   in the sitemap. A sitemap is a list of URLs you are asking Google to
   index, so listing noindex URLs sends two contradictory signals.
 
+  Each URL names its Markdown copy (index.md, for AI agents) as an
+  xhtml:link alternate, the sitemap form of the <link rel="alternate"
+  type="text/markdown"> in its <head>. The copies are not listed as URLs
+  of their own: they repeat their page and should not compete with it.
+
   <changefreq> and <priority> are deliberately omitted. Google has stated
   it ignores both, and every page here carried the identical site-wide
   default (monthly / 0.5), so they conveyed no information at all.
@@ -15,6 +20,9 @@
     <loc>{{ .Permalink }}</loc>
     {{- if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>
+    {{- end }}
+    {{- with .OutputFormats.Get "markdown" }}
+    <xhtml:link rel="alternate" type="text/markdown" href="{{ .Permalink }}"/>
     {{- end }}
   </url>
     {{- end -}}

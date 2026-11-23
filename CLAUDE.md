@@ -86,7 +86,7 @@ Each event takes an optional `date`, a quoted ISO-8601 string — `"YYYY-MM-DD"`
 - **Taxonomies**: Hugo auto-generates tag pages (`layouts/tags/term.html`, `layouts/tags/list.html`)
 - **TypeScript** (`assets/js/`): Client-side modules — mobile menu, Lunr.js search, code block copy buttons, parallax effects, GitHub star counts
 - **Styling**: Tailwind CSS v4 (dark theme, custom palette in `assets/css/tailwind.css`) + custom Sass (`assets/css/`)
-- **Config** (`hugo.toml`): Permalinks, taxonomies, output formats (HTML, RSS, VideoSitemap), markup settings
+- **Config** (`hugo.toml`): Permalinks, taxonomies, output formats (HTML, RSS, VideoSitemap, llms.txt, Markdown copies), markup settings
 
 ## Key Patterns
 
@@ -96,6 +96,16 @@ Each event takes an optional `date`, a quoted ISO-8601 string — `"YYYY-MM-DD"`
 - Reading time: 183 WPM (custom partial, not Hugo's built-in `.ReadingTime`)
 - YouTube ID extraction: `replaceRE` in templates
 - Combined content feeds: `union` of blog + podcast pages, sorted by date
+
+## Markdown Copies for AI Agents
+
+Every page is also built as clean Markdown at `index.md` next to its `index.html` (`/about/` → `/about/index.md`, home → `/index.md`). `/llms.txt` lists the pages with links to their Markdown, and `/llms-full.txt` is the content of all of them in one file.
+
+- `hugo.toml` adds the `markdown` output format to every page kind. A page that sets its own `outputs` in front matter must list `markdown` too (`content/search/` opts out on purpose).
+- `layouts/partials/markdown/page.html` builds the whole copy: title, description, per-section facts (blog author/dates/tags, podcast guests/duration/listen links, project repo/license), the content, the podcast transcript from `data/transcripts/`, the events on about and speaking, and on list pages links to everything listed. `layouts/_default/single.markdown.md`, `list.markdown.md` and `layouts/home.markdown.md` only call it.
+- `layouts/partials/markdown/body.html` is the content alone, also used by `llms-full.txt`. Markdown files keep their source (raw HTML in them goes through `markdown/inline-html.html`, code is left alone); `.html` content goes through `markdown/from-html.html`. Pages whose content lives in a layout (about, consulting, speaking, projects index, remote work) keep that markup in `layouts/partials/pages/`, which both the layout and the Markdown copy render, so **edit the page copy there, not in the layout**. Root-relative links are made absolute.
+- `<head>` links the copy with `<link rel="alternate" type="text/markdown">`, and each sitemap URL carries the same as an `xhtml:link`. The copies are not sitemap URLs of their own. `robots.txt` points agents at `llms.txt`.
+- Lychee skips `index.md` like `llms.txt`: code examples in them carry placeholder URLs.
 
 ## CI/CD
 

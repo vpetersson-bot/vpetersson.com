@@ -58,11 +58,22 @@ timeout = "60s"
     baseName = "llms-full"
     mediaType = "text/plain"
     isPlainText = true
+  # A clean Markdown copy of every page, written as index.md next to its
+  # index.html, for AI agents. Built in since Hugo 0.146; declared here so
+  # older Hugo builds the same. Rendered by layouts/partials/markdown/page.html.
+  [outputFormats.markdown]
+    baseName = "index"
+    mediaType = "text/markdown"
+    isPlainText = true
+    rel = "alternate"
 
 # Home page output formats
 [outputs]
-  home = ["HTML", "RSS", "VideoSitemap", "llms", "llmsfull"]
-  section = ["HTML", "RSS"]
+  home = ["HTML", "RSS", "VideoSitemap", "llms", "llmsfull", "markdown"]
+  section = ["HTML", "RSS", "markdown"]
+  page = ["HTML", "markdown"]
+  taxonomy = ["HTML", "RSS", "markdown"]
+  term = ["HTML", "RSS", "markdown"]
 
 # Minification
 [minify]

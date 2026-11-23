@@ -1,0 +1,17 @@
+{{- /* One entry from data/events.yaml as a Markdown list item, for the
+     about and speaking pages' Markdown copies. Returns a string. */ -}}
+{{- $e := . -}}
+{{- $s := printf "- **%s**" ($e.event | default $e.publication | default $e.title) -}}
+{{- $facts := slice $e.type -}}
+{{- with $e.location }}{{ $facts = $facts | append . }}{{ end -}}
+{{- with $e.date }}{{ $facts = $facts | append . }}{{ end -}}
+{{- if $e.upcoming }}{{ $facts = $facts | append "upcoming" }}{{ end -}}
+{{- $s = printf "%s (%s)" $s (delimit $facts ", ") -}}
+{{- if and $e.title (or $e.event $e.publication) }}{{ $s = printf "%s: %s" $s $e.title }}{{ end -}}
+{{- $links := slice -}}
+{{- range slice (slice "deck" "Deck") (slice "video" "Video") (slice "youtube" "YouTube") (slice "spotify" "Spotify") (slice "apple" "Apple Podcasts") (slice "link" "Link") -}}
+  {{- $label := index . 1 -}}
+  {{- with index $e (index . 0) }}{{ $links = $links | append (printf "[%s](%s)" $label (cond (hasPrefix . "/") (. | absURL) .)) }}{{ end -}}
+{{- end -}}
+{{- with $links }}{{ $s = printf "%s (%s)" $s (delimit . ", ") }}{{ end -}}
+{{- return $s -}}
