@@ -1,0 +1,33 @@
+{{- /* Markdown tables, wrapped so a wide one scrolls inside the article
+     instead of running off the right edge of the column. Tables with more
+     than four columns get .table-wide, which lets them use more of the
+     screen than the text column. The wrapper is focusable so the scroll
+     works from the keyboard too. Styled by .table-responsive in
+     assets/css/deferred.scss. */ -}}
+{{- $cols := 0 }}{{ with .THead }}{{ $cols = len (index . 0) }}{{ end -}}
+<div class="table-responsive{{ if gt $cols 4 }} table-wide{{ end }}" role="region" aria-label="Table" tabindex="0">
+<table
+  {{- range $k, $v := .Attributes }}
+    {{- if $v }}{{ printf " %s=%q" $k $v | safeHTMLAttr }}{{ end }}
+  {{- end }}>
+  <thead>
+    {{- range .THead }}
+    <tr>
+      {{- range . }}
+      <th{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</th>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </thead>
+  <tbody>
+    {{- range .TBody }}
+    <tr>
+      {{- range . }}
+      <td{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</td>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </tbody>
+</table>
+</div>
+{{- /* */ -}}

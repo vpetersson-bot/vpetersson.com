@@ -619,13 +619,39 @@
      TABLES
      ======================================== */
 
+  // Every Markdown table sits in one of these (_markup/render-table.html):
+  // a wide table scrolls sideways inside it instead of overflowing the page.
   .table-responsive {
     margin: 1.5rem 0;
     border-radius: 12px;
-    overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow-x: auto;
+    overscroll-behavior-x: contain;
+
+    &:focus-visible {
+      outline: 2px solid $purple;
+      outline-offset: 2px;
+    }
+  }
+
+  // Tables with more than four columns use up to 1100px, centred on the
+  // text column, rather than squeezing into its 665px.
+  .table-wide {
+    // A string: LibSass cannot evaluate a CSS min() over mixed units.
+    $wide: "min(1100px, calc(100vw - 2rem))";
+
+    width: #{$wide};
+    margin-left: calc((100% - #{$wide}) / 2);
+
+    th {
+      white-space: normal;
+      min-width: 6rem;
+    }
+
+    td {
+      min-width: 6rem;
+    }
   }
 
   table {
@@ -640,13 +666,15 @@
   }
 
   table th {
-    padding: 1rem;
+    padding: 0.875rem 1rem;
     text-align: left;
     font-weight: 600;
     color: $white;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    vertical-align: bottom;
     border: none;
     white-space: nowrap;
     position: relative;
@@ -667,7 +695,7 @@
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     color: $text-primary;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     line-height: 1.5;
     vertical-align: top;
   }
