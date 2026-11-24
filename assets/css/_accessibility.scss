@@ -3,8 +3,12 @@
 /* Skip Navigation */
 .skip-navigation {
   position: absolute;
-  top: -40px;
+  top: 6px;
   left: 6px;
+
+  // Parked fully off-screen until focused. A fixed negative `top` left part of the
+  // link showing once its padding outgrew the offset.
+  transform: translateY(calc(-100% - 12px));
   background: var(--color-primary);
   color: var(--color-white);
   padding: var(--space-2) var(--space-3);
@@ -12,11 +16,11 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   text-decoration: none;
-  transition: top var(--transition-fast);
+  transition: transform var(--transition-fast);
   z-index: var(--z-tooltip);
 
   &:focus {
-    top: 6px;
+    transform: none;
   }
 }
 

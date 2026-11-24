@@ -94,6 +94,20 @@ timeout = "60s"
   [[module.mounts]]
     source = "static"
     target = "static"
+  # Web fonts come from @fontsource-variable packages (managed with bun) and are
+  # served from /fonts/. Only the latin subset is published.
+  [[module.mounts]]
+    source = "node_modules/@fontsource-variable/space-grotesk/files"
+    target = "static/fonts"
+    files = "space-grotesk-latin-wght-normal.woff2"
+  [[module.mounts]]
+    source = "node_modules/@fontsource-variable/inter/files"
+    target = "static/fonts"
+    files = "inter-latin-wght-normal.woff2"
+  [[module.mounts]]
+    source = "node_modules/@fontsource-variable/jetbrains-mono/files"
+    target = "static/fonts"
+    files = "jetbrains-mono-latin-wght-normal.woff2"
   [[module.mounts]]
     source = "presentations"
     target = "static/presentations"

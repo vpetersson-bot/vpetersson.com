@@ -83,6 +83,7 @@
 
 .speaking-stat-number {
   font-family: $font-display;
+  font-weight: $font-weight-display;
   font-size: var(--font-size-2xl);
   line-height: 1.1;
   color: $purple;
@@ -111,6 +112,7 @@
 
 .speaking-section-title {
   font-family: $font-display;
+  font-weight: $font-weight-display;
   font-size: var(--font-size-2xl);
   color: $white;
   text-transform: uppercase;
@@ -124,7 +126,7 @@
   margin-top: var(--space-6);
 
   a {
-    color: $purple;
+    color: $purple-ui;
     text-decoration: underline;
   }
 }
@@ -155,6 +157,7 @@
 
 .speaking-highlight-title {
   font-family: $font-display;
+  font-weight: $font-weight-display;
   font-size: var(--font-size-2xl);
   color: $white;
   text-transform: uppercase;

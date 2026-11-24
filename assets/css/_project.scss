@@ -2,7 +2,7 @@
 // These pages document self-hosted tools whose entire interface is a text file,
 // so JetBrains Mono carries structural weight here rather than being reserved
 // for code samples: the eyebrow, the spec line and both halves of the exchange
-// are set in it. Anton stays restrained, on the title and section headings only.
+// are set in it. The display face stays restrained, on the title and section headings only.
 // Colours are the site palette, unchanged. $purple-ui is used wherever an accent
 // lands on small text, since $purple itself is under the 4.5:1 AA floor there.
 
@@ -46,7 +46,7 @@
 
 .project-title {
   font-family: $font-display;
-  font-weight: 400;
+  font-weight: $font-weight-display;
   text-transform: uppercase;
   line-height: 0.95;
   color: $white;
@@ -298,6 +298,7 @@
   border: 1px solid $purple;
   border-radius: 9999px;
   font-family: $font-display;
+  font-weight: 600;
   font-size: rem(15px);
   line-height: 1.5;
   letter-spacing: 1.4px;
@@ -335,7 +336,7 @@
 
   h2 {
     font-family: $font-display;
-    font-weight: 400;
+    font-weight: $font-weight-display;
     text-transform: uppercase;
     color: $white;
     font-size: clamp(1.5rem, 4vw, 2rem);
@@ -395,7 +396,7 @@
 
 .project-section-heading {
   font-family: $font-display;
-  font-weight: 400;
+  font-weight: $font-weight-display;
   text-transform: uppercase;
   color: $white;
   font-size: clamp(1.5rem, 4vw, 2rem);
