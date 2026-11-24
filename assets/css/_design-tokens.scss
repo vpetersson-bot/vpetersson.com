@@ -1,28 +1,28 @@
 /* Self-hosted font declarations */
 @font-face {
-  font-family: 'Anton';
+  font-family: 'Space Grotesk';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 300 700;
   font-display: swap;
-  src: url('/fonts/anton-v25-latin-regular.woff2') format('woff2');
+  src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
   font-family: 'Inter';
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/inter-latin.woff2') format('woff2');
+  src: url('/fonts/inter-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
-  font-weight: 400 600;
+  font-weight: 100 800;
   font-display: swap;
-  src: url('/fonts/jetbrains-mono-v18-latin-regular.woff2') format('woff2');
+  src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -42,9 +42,10 @@
   --color-gray-100: rgba(255, 255, 255, 0.1);
 
   /* Typography */
-  --font-family-display: 'Anton', system-ui, sans-serif;
+  --font-family-display: 'Space Grotesk', system-ui, sans-serif;
   --font-family-body: 'Inter', system-ui, sans-serif;
   --font-family-mono: 'JetBrains Mono', monospace;
+  --font-weight-display: 700;
 
   /* Font Sizes - Fluid Typography */
   --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
@@ -55,7 +56,7 @@
   --font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
   --font-size-3xl: clamp(2rem, 1.6rem + 2vw, 3rem);
   --font-size-4xl: clamp(3rem, 2rem + 5vw, 4rem);
-  --font-size-hero: clamp(4rem, 3rem + 8vw, 8rem);
+  --font-size-hero: clamp(2.5rem, 18cqi, 8rem);
 
   /* Spacing - 8px Grid System */
   --space-1: 0.5rem;    /* 8px */

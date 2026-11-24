@@ -490,7 +490,7 @@
 
 .page-header-title {
   font-family: $font-display;
-  font-weight: 400;
+  font-weight: $font-weight-display;
   color: $white;
   text-transform: uppercase;
   line-height: 1;
@@ -569,6 +569,7 @@
   color: $white;
   border-radius: 9999px;
   font-family: $font-display;
+  font-weight: 600;
   font-size: 0.875rem;
   text-transform: uppercase;
   text-decoration: none;
