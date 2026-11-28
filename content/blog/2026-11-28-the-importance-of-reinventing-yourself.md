@@ -10,58 +10,62 @@ tags:
 - entrepreneurship
 ---
 
-Many years ago, Paul Graham released a piece called ["Keep Your Identity Small."](https://paulgraham.com/identity.html) His central thesis suggests that limiting what you define yourself by results in sharper thinking. I would extend this to note it significantly simplifies adjusting to shifting circumstances.
+Many years ago, Paul Graham published an essay titled ["Keep Your Identity Small."](https://paulgraham.com/identity.html) The core of the essay is that the fewer things you make part of your identity, the clearer you think. I'd add that it also makes it a lot easier to adapt to new realities.
 
-That has never been more true than it is right now.
+Never before has this been more true.
 
-I contend there is a matching notion of equal weight: reinventing oneself.
+I would argue that there is a parallel concept that is equally important: reinventing yourself. This is super important for growth.
 
 ## Three reinventions
 
-My background involves growing up in a small Swedish town that was quite uniform. Since then, I have redefined myself no fewer than three times.
+I grew up in a small town in Sweden. It was a very homogeneous place. I have reinvented myself at least three times since.
 
-The initial shift occurred within the navy. I had to coexist with individuals from vastly different backgrounds. One of them, not overstating it, grew up in a genuine castle; others came from much harder circumstances. This exposed me to entirely new viewpoints. Furthermore, there was the strict discipline. Obeying commands inevitably alters you.
+There are a few natural times for reinvention. Leaving home and going to university is a common one. You start fresh. You meet new people. Nobody knows who you were.
 
-The next phase involved relocating to America, specifically Silicon Valley. I found myself among people from every corner of the globe, far removed from my Swedish roots. My horizons expanded dramatically: exposure to the technology sector, diverse cultures, and cuisines previously unknown to me.
+My first was the navy. I was forced to live with people from completely different walks of life. One of them literally grew up in a castle. I'm not exaggerating. Others grew up far less fortunate. It opened me up to completely different perspectives. Then there was the discipline. Following orders certainly reshapes you.
 
-The third change was more practical. I completed my degree in America during the peak of the 2008 crash. The chances of finding a job and staying were virtually non-existent. Consequently, I departed and settled in London. Shoreditch was where I discovered my community. I got to be at the heart of the early container and Kubernetes development, which would later evolve into the cloud native movement. It was thrilling and fundamentally altered my sense of self.
+The second was moving to the US, and Silicon Valley in particular. I was surrounded by people from all around the world. A long way from small-town Sweden. It completely opened up my world. The tech industry, different cultures, different food.
 
-## The room shapes you
+The third was more pragmatic. I graduated in the US at the height of the 2008 collapse. The prospects of finding a job and staying were slim to none. So I left, and ended up in London. Shoreditch was where I found my tribe. I got to be at the epicenter of early containers and Kubernetes, what would eventually become the cloud native movement. It was exciting, and it certainly changed my identity.
 
-The individual I was at age eighteen differs greatly from who I am now. What shifted in each instance was my surroundings and the individuals within them; then, I changed.
+## Your environment shapes you
 
-Every experience delivered the same message. The identity I held previously was not truly me; it was merely a reflection of my location. This explains how reinvention and a minimal identity connect. Each time you redefine yourself, shedding the subsequent label becomes simpler.
+The person I was at 18 is very different from who I am today as a 40-something. I have different values, different strengths, a different identity, and I see the world very differently.
 
-It functions inversely as well. We can slide backward. Should I return to that small town, regression would begin. The residents there would still perceive the eighteen-year-old version of me, compelling me to adapt to their expectations.
+What changed each time was my environment and the people in it. Then I changed.
 
-## AI is the next room
+Each time taught me the same lesson. The identity I had before wasn't really me. It was just where I was. This is how reinvention and a small identity fit together. Every time you reinvent yourself, the next label gets easier to drop.
 
-We observe this phenomenon affecting many individuals currently. AI tools are challenging people's identities.
+It is also true that we can regress. Had I moved back to that small town, I'd start regressing. In part because the people there would still see the 18-year-old. So I'd adjust.
 
-If you consider yourself an engineer and act as though nothing has altered in the past year, you will face immense difficulty. If your self-concept rests on writing code, that domain is largely disappearing.
+## AI is the next reinvention
 
-I have witnessed this directly at both [Screenly](https://www.screenly.io) and [sbomify](https://sbomify.com). A squad of three to five individuals can now outpace a group two or three times larger. Designers and engineers collaborate within the same git repositories. We span the entire range, from converting actual photographs into finished product visuals to design and engineering.
+We see this playing out for a lot of people right now. AI tools are changing people's identities. Or challenging them, I should say.
 
-Nothing here is unprecedented. We transitioned from assembly to compilers, then to high-level languages and finally the cloud. In every era, someone claimed that genuine engineers must work one level deeper. Each time, they were left behind.
+If you are an engineer and pretend that things haven't changed in the last year, you are going to have a really hard time. If your identity is that you write code, that world is largely being wiped away.
 
-I observed this clearly in London upon the arrival of containers. Servers shifted from pets to cattle. System administrators whose identity relied on caring for their pets had a hard time. Those who reinvented themselves as DevOps engineers, and subsequently DevSecOps engineers, flourished. They shared the same origins and core abilities, which were expanded and abstracted, yet possessed a different identity.
+I've seen it firsthand at both [Screenly](https://www.screenly.io) and [sbomify](https://sbomify.com). A team of three to five people can now move faster than a team two or three times that size. Designers and engineers work directly against the same git repos. We are flying across the full spectrum, from turning real photos into finished product images, to design, to engineering.
 
-The most fitting comparison I can offer is furniture production. A century ago, most pieces were crafted by hand. Today, the overwhelming majority are IKEA-style. This approach is utilitarian. Handcrafted furniture remains alive but occupies a narrow market. And far more furniture is produced now than ever before.
+None of this is new. We went from assembly to compilers to high-level languages to the cloud. Every time, someone insisted that real engineers work one level down. Every time, they got left behind.
 
-This holds true for code as well. The bulk will be generated by agents. Certain highly customized items will still be written manually, but this represents the handmade furniture category. It is craft. It is art. It is not utilitarian.
+I saw it up close in London when containers arrived. Servers went from pets to cattle. The sysadmins whose identity was caring for their pets had a hard time. The ones who reinvented themselves as DevOps engineers, and later DevSecOps, thrived. Same background. Same skills, expanded and abstracted. Different identity.
 
-This logic applies across various disciplines as well. If the software engineer is now an architect, the graphic designer is now a creative director. Each now oversees a fleet of agents.
+The best analogy I can think of is furniture making. A hundred years ago, most furniture was made by hand. Today, the vast majority is IKEA-style furniture. It's utilitarian. It's not like bespoke handmade furniture is dead. It's just a very niche market. And far more furniture gets made today than ever before.
 
-## Problem solvers, not code writers
+The same is true for code. The vast majority of code will be written by agents. Some very bespoke things will still be written by hand. But that is the handmade furniture equivalent. It's a hobby and an art. It's not utilitarian. It's craft.
 
-Those facing the steepest challenges in this transition are individuals who have anchored their professional identity to the act of writing code. I understand that sentiment. They spent decades honing their craft. Yet, their world is crumbling, and the walls are closing in.
+The same thing holds true for other fields. If the software engineer is now an architect, the graphic designer is now a creative director. Both manage a fleet of agents.
 
-Individuals who define themselves as problem solvers encounter fewer obstacles. For them, this represents merely a fresh instrument or a new layer of abstraction. While perhaps more transformative than earlier shifts, it remains an abstraction nonetheless. None of their prior learning becomes obsolete. The critical thinking you develop over years of coding is precisely what you need to direct agents; your expertise endures. It's the identity that has to go.
+## Keep your identity small
 
-## Change the room
+This is where identity matters so much. In my experience, the people who struggle the most with this shift are the ones who have tied their identity to being someone who writes code. I get it. It took them decades to get good. But their world is crumbling and the walls are closing in.
 
-Relocating nations isn't required to make this shift. However, you must alter your immediate surroundings. If those around you insist that genuine engineers write code, that is your small town. Remain there, and you will adapt to conform.
+The people who can abstract away and see themselves as problem solvers struggle less. It's just a new tool. A new abstraction. Perhaps more radical than previous ones. And nothing they learned is wasted. The judgment you build from years of writing code is exactly what you need to direct agents. The skill stays. It's the identity that has to go.
 
-Perhaps you doubt my assessment of AI. Fair enough. Reinvent yourself regardless. If I am mistaken, you suffer no loss; you can still write code. If I am correct and you failed to adapt, the consequences are significant.
+You don't need to move countries to do this. But you do need to change your environment. If everyone around you agrees that real engineers write code, that is your small town. Stay, and you will adjust to fit.
 
-The landscape is shifting. Debating whether this change is positive or negative is irrelevant. This is the current reality, and nostalgic reflection won't aid you. Reinvention will. It is the sole path to survival and success.
+Maybe you think I'm wrong about AI. Fine. Reinvent yourself anyway. If I'm wrong, you've lost nothing. You can still write code. If I'm right and you didn't, you've lost a lot.
+
+The world is changing. Arguing over whether this is good or bad is moot. It is the new reality. It will take time to adjust, for both companies and individuals. Much of it will be knee-jerk. Some will overcorrect. Others won't adjust fast enough. The jury is still out. But looking backwards sentimentally is not going to help.
+
+This is why we need to keep our identity small and keep reinventing ourselves. It is the only way to survive and thrive.
