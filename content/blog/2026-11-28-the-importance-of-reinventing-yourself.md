@@ -10,21 +10,21 @@ tags:
 - entrepreneurship
 ---
 
-Decades past, Paul Graham released a piece called ["Keep Your Identity Small."](https://paulgraham.com/identity.html) His central thesis suggests that limiting what you define yourself by results in sharper thinking. I would extend this to note it significantly simplifies adjusting to shifting circumstances.
+Many years ago, Paul Graham released a piece called ["Keep Your Identity Small."](https://paulgraham.com/identity.html) His central thesis suggests that limiting what you define yourself by results in sharper thinking. I would extend this to note it significantly simplifies adjusting to shifting circumstances.
 
-Nothing holds this more valid today than the current moment.
+That has never been more true than it is right now.
 
 I contend there is a matching notion of equal weight: reinventing oneself.
 
 ## Three reinventions
 
-My background involves growing up in a tiny Swedish community that was quite uniform. Since then, I have redefined myself no fewer than three times.
+My background involves growing up in a small Swedish town that was quite uniform. Since then, I have redefined myself no fewer than three times.
 
-The initial shift occurred within the navy. I had to coexist with individuals from vastly different backgrounds. One individual, not overstating it, spent his youth inside a genuine castle; others came from much harder circumstances. This exposed me to entirely new viewpoints. Furthermore, there was the strict discipline. Obeying commands inevitably alters you.
+The initial shift occurred within the navy. I had to coexist with individuals from vastly different backgrounds. One of them, not overstating it, grew up in a genuine castle; others came from much harder circumstances. This exposed me to entirely new viewpoints. Furthermore, there was the strict discipline. Obeying commands inevitably alters you.
 
 The next phase involved relocating to America, specifically Silicon Valley. I found myself among people from every corner of the globe, far removed from my Swedish roots. My horizons expanded dramatically: exposure to the technology sector, diverse cultures, and cuisines previously unknown to me.
 
-The final change was more practical. I completed my degree in America during the peak of the 2008 crash. Opportunities for employment and retention were virtually non-existent. Consequently, I departed and settled in London. Shoreditch was where I discovered my community. I got to be at the heart of the early container and Kubernetes development, which would later evolve into the cloud native movement. It was thrilling and fundamentally altered my sense of self.
+The third change was more practical. I completed my degree in America during the peak of the 2008 crash. The chances of finding a job and staying were virtually non-existent. Consequently, I departed and settled in London. Shoreditch was where I discovered my community. I got to be at the heart of the early container and Kubernetes development, which would later evolve into the cloud native movement. It was thrilling and fundamentally altered my sense of self.
 
 ## The room shapes you
 
@@ -36,7 +36,7 @@ It functions inversely as well. We can slide backward. Should I return to that s
 
 ## AI is the next room
 
-We observe this phenomenon affecting many individuals currently. AI instruments are testing the boundaries of personal identities.
+We observe this phenomenon affecting many individuals currently. AI tools are challenging people's identities.
 
 If you consider yourself an engineer and act as though nothing has altered in the past year, you will face immense difficulty. If your self-concept rests on writing code, that domain is largely disappearing.
 
@@ -44,24 +44,24 @@ I have witnessed this directly at both [Screenly](https://www.screenly.io) and [
 
 Nothing here is unprecedented. We transitioned from assembly to compilers, then to high-level languages and finally the cloud. In every era, someone claimed that genuine engineers must work one level deeper. Each time, they were left behind.
 
-I observed this clearly in London upon the arrival of containers. Servers shifted from pets to cattle. System administrators whose identity relied on caring for their pets struggled immensely. Those who reinvented themselves as DevOps engineers, and subsequently DevSecOps engineers, flourished. They shared the same origins and core abilities, which were expanded and abstracted, yet possessed a different identity.
+I observed this clearly in London upon the arrival of containers. Servers shifted from pets to cattle. System administrators whose identity relied on caring for their pets had a hard time. Those who reinvented themselves as DevOps engineers, and subsequently DevSecOps engineers, flourished. They shared the same origins and core abilities, which were expanded and abstracted, yet possessed a different identity.
 
-The most fitting comparison I can offer is furniture production. A century ago, most pieces were crafted by hand. Today, the overwhelming majority are IKEA-style. This approach is utilitarian. Handcrafted furniture remains alive but occupies a narrow market. Additionally, more furniture is produced now than ever before.
+The most fitting comparison I can offer is furniture production. A century ago, most pieces were crafted by hand. Today, the overwhelming majority are IKEA-style. This approach is utilitarian. Handcrafted furniture remains alive but occupies a narrow market. And far more furniture is produced now than ever before.
 
 This holds true for code as well. The bulk will be generated by agents. Certain highly customized items will still be written manually, but this represents the handmade furniture category. It is craft. It is art. It is not utilitarian.
 
-This logic applies across various disciplines as well. Should a software engineer evolve into an architect, a graphic designer transforms into a creative director; each now oversees a team of agents.
+This logic applies across various disciplines as well. If the software engineer is now an architect, the graphic designer is now a creative director. Each now oversees a fleet of agents.
 
 ## Problem solvers, not code writers
 
-Those facing the steepest challenges in this transition are individuals who have anchored their professional identity to the act of writing code. I understand that sentiment. They spent years honing their craft. Yet, their current environment is destabilizing, and the boundaries are tightening around them.
+Those facing the steepest challenges in this transition are individuals who have anchored their professional identity to the act of writing code. I understand that sentiment. They spent decades honing their craft. Yet, their world is crumbling, and the walls are closing in.
 
-Individuals who define themselves as problem solvers encounter fewer obstacles. For them, this represents merely a fresh instrument or a new layer of abstraction. While perhaps more transformative than earlier shifts, it remains an abstraction nonetheless. None of their prior learning becomes obsolete. The critical thinking you develop over years of coding is precisely what directs agents; your expertise endures. Only the self-perception must evolve.
+Individuals who define themselves as problem solvers encounter fewer obstacles. For them, this represents merely a fresh instrument or a new layer of abstraction. While perhaps more transformative than earlier shifts, it remains an abstraction nonetheless. None of their prior learning becomes obsolete. The critical thinking you develop over years of coding is precisely what you need to direct agents; your expertise endures. It's the identity that has to go.
 
 ## Change the room
 
 Relocating nations isn't required to make this shift. However, you must alter your immediate surroundings. If those around you insist that genuine engineers write code, that is your small town. Remain there, and you will adapt to conform.
 
-Perhaps you doubt my assessment of AI. Fair enough. Reinvent yourself regardless. If I am mistaken, you suffer no loss; coding remains viable. If I am correct and you failed to adapt, the consequences are significant.
+Perhaps you doubt my assessment of AI. Fair enough. Reinvent yourself regardless. If I am mistaken, you suffer no loss; you can still write code. If I am correct and you failed to adapt, the consequences are significant.
 
 The landscape is shifting. Debating whether this change is positive or negative is irrelevant. This is the current reality, and nostalgic reflection won't aid you. Reinvention will. It is the sole path to survival and success.
