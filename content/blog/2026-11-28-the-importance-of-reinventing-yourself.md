@@ -18,11 +18,9 @@ I would argue that there is a parallel concept that is equally important: reinve
 
 ## Three reinventions
 
-I grew up in a small town in Sweden. It was a very homogeneous place. I have reinvented myself at least three times since.
-
 There are a few natural times for reinvention. Leaving home and going to university is a common one. You start fresh. You meet new people. Nobody knows who you were.
 
-My first was the navy. I was forced to live with people from completely different walks of life. One of them literally grew up in a castle. I'm not exaggerating. Others grew up far less fortunate. It opened me up to completely different perspectives. Then there was the discipline. Following orders certainly reshapes you.
+I have reinvented myself at least three times. The first was the navy. I was forced to live with people from completely different walks of life. One of them literally grew up in a castle. I'm not exaggerating. Others grew up far less fortunate. It opened me up to completely different perspectives. Then there was the discipline. Following orders certainly reshapes you.
 
 The second was moving to the US, and Silicon Valley in particular. I was surrounded by people from all around the world. A long way from small-town Sweden. It completely opened up my world. The tech industry, different cultures, different food.
 
@@ -36,7 +34,7 @@ What changed each time was my environment and the people in it. Then I changed.
 
 Each time taught me the same lesson. The identity I had before wasn't really me. It was just where I was. This is how reinvention and a small identity fit together. Every time you reinvent yourself, the next label gets easier to drop.
 
-It is also true that we can regress. Had I moved back to that small town, I'd start regressing. In part because the people there would still see the 18-year-old. So I'd adjust.
+It is also true that we can regress. Had I moved back to the small town in Sweden where I grew up, I'd start regressing. In part because the people there would still see the 18-year-old. So I'd adjust.
 
 ## AI is the next reinvention
 
